@@ -13,6 +13,8 @@ def analyze():
 	table_name = str(request.json['name'])
 	data = request.json['data']
 	bdb = create_bdb(table_name)
+	with bdb.savepoint():
+		bdb.execute(clear_artifacts(table_name))
 	sql_queries = [create_table(table_name, data), insert_values(table_name, data)]
 	bql_queries = [create_population(table_name), create_metamodel(table_name),\
 				initialize_models(table_name), analyze_metamodel(table_name)]
