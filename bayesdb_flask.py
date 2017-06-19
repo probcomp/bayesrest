@@ -9,7 +9,8 @@ def create_metamodel_name(table_name):
 	return table_name + "_m"
 
 def serialize_value(val):
-	if isinstance(val, str) or isinstance(val, unicode):
+	val = val.decode('utf-8')
+	if isinstance(val, str):
 		return "\"%s\"" %(val)
 	elif isinstance(val, int) or isinstance(val,float):
 		return str(val)
@@ -24,8 +25,11 @@ def clear_artifacts(table_name):
 def create_bdb(table_name):
 	return bayeslite.bayesdb_open(table_name + '.bdb')
 
+def column_names(matrix):
+	return ', '.join(serialize_value(m) for m in matrix[0][:])
+
 def create_table(table_name, matrix):
-	col_names = ', '.join(str(m) for m in matrix[0][:])
+	col_names = column_names(matrix)
 	return "CREATE TABLE %s (%s)" %(table_name, col_names)
 
 def insert_values(table_name, matrix):
@@ -36,7 +40,7 @@ def insert_values(table_name, matrix):
 		values += cur_values
 		if i != len(matrix) - 2:
 			values +=','
-    col_names = ', '.join(str(m) for m in matrix[0][:])
+    col_names = column_names(matrix)
     return "INSERT INTO %s (%s) VALUES %s" %(table_name, col_names, values)
 
 def create_population(table_name):
