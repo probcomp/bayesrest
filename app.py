@@ -30,7 +30,9 @@ def analyze():
 
 @app.route("/query", methods=['GET'])
 def query():
-	query = simulate("some_name", "age")
+	table_name = "test"
+	query = simulate(table_name, "age")
+	bdb = create_bdb(table_name)
 	with bdb.savepoint():
 		cursor = bdb.execute(query)
 	return cursor_to_df(cursor).to_json()
