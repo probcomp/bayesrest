@@ -9,7 +9,7 @@ def create_metamodel_name(table_name):
 	return table_name + "_m"
 
 def serialize_value(val):
-	val = val.decode('utf-8')
+	val = str(val)
 	if isinstance(val, str):
 		return "\"%s\"" %(val)
 	elif isinstance(val, int) or isinstance(val,float):
