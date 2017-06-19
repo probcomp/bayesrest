@@ -2,9 +2,6 @@ import bayeslite
 
 # https://docs.python.org/2/library/json.html
 
-def random_name():
-	return "some_name"
-
 def create_population_name(table_name):
 	return table_name + "_p"
 
@@ -17,15 +14,17 @@ def serialize_value(val):
 	elif isinstance(val, int) or isinstance(val,float):
 		return str(val)
 	else:
-		raise ValueError("%s is of type %s. Can only serialize ints and floats.") %(val, type(val))
+		raise ValueError("%s is of type %s. Can only serialize ints and floats." %(str(val), str(type(val))))
 
 def clear_artifacts(table_name):
 	return ["DROP METAMODEL IF EXISTS %s" %(create_metamodel_name(table_name)), \
 			"DROP POPULATION IF EXISTS %s" %(create_population_name(table_name)), \
 			"DROP TABLE IF EXISTS %s" %(table_name)]
 
-def create_table(matrix):
-	table_name = random_name()
+def create_bdb(table_name):
+	return bayeslite.bayesdb_open(table_name + '.bdb')
+
+def create_table(table_name, matrix):
 	col_names = ', '.join(str(m) for m in matrix[0][:])
 	return "CREATE TABLE %s (%s)" %(table_name, col_names)
 
@@ -52,3 +51,5 @@ def initialize_models(table_name, num_models=1):
 def analyze_metamodel(table_name, num_minutes=1):
 	return "ANALYZE %s FOR %d MINUTES WAIT ( OPTIMIZED )" %(create_metamodel_name(table_name), num_minutes)
 
+def simulate(table_name, var_name, limit=10):
+	return "SIMULATE %s FROM %s LIMIT %d" %(var_name, create_population_name(table_name), limit)
