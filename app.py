@@ -10,7 +10,7 @@ app.debug = True
 @app.route("/analyze", methods=['POST'])
 def analyze():
 	print(request.json)
-	table_name = request.json['name']
+	table_name = request.json['name'].decode('utf-8')
 	data = request.json['data']
 	bdb = create_bdb(table_name)
 	sql_queries = [create_table(table_name, data), insert_values(table_name, data)]
