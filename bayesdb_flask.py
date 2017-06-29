@@ -1,5 +1,7 @@
-import bayeslite
+
 import unicodedata
+
+import bayeslite
 
 # https://docs.python.org/2/library/json.html
 

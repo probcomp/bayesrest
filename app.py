@@ -1,10 +1,14 @@
+import json
+
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-import bayeslite
-from iventure.utils_bql import cursor_to_df
-from bayesdb_flask import *
-import json
 from OpenSSL import SSL
+
+import bayeslite
+
+from iventure.utils_bql import cursor_to_df
+
+from bayesdb_flask import *
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
