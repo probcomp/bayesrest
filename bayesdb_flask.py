@@ -1,9 +1,6 @@
-
 import unicodedata
 
 import bayeslite
-
-# https://docs.python.org/2/library/json.html
 
 def create_population_name(table_name):
     return table_name + "_p"
