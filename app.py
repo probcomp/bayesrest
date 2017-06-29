@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.debug = True
 
-@app.route("/analyze", methods=['POST']) 
+@app.route("/analyze", methods=['POST'])
 @cross_origin(supports_credentials=True)
 def analyze():
     table_name = str(request.json['name'])
