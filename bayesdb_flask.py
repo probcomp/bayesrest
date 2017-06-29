@@ -5,7 +5,7 @@ import bayeslite
 def create_population_name(table_name):
     return table_name + '_p'
 
-def create_metamodel_name(table_name):
+def create_analysis_schema_name(table_name):
     return table_name + '_m'
 
 def create_dependence_probability_name(table_name):
@@ -26,8 +26,8 @@ def serialize_value(val):
             )
 
 def clear_artifacts(table_name):
-    return ['DROP METAMODEL IF EXISTS "%s"' %
-                (create_metamodel_name(table_name),),
+    return ['DROP ANALYSIS SCHEMA IF EXISTS "%s"' %
+                (create_analysis_schema_name(table_name),),
             'DROP POPULATION IF EXISTS "%s"' %
                 (create_population_name(table_name),),
             'DROP TABLE IF EXISTS "%s"' % (table_name,),
@@ -52,16 +52,18 @@ def create_population(table_name):
         create_population_name(table_name), table_name)
 
 def create_metamodel(table_name):
-    return 'CREATE METAMODEL "%s" FOR "%s" WITH BASELINE crosscat()' % (
-        create_metamodel_name(table_name), create_population_name(table_name))
+    return 'CREATE ANALYSIS SCHEMA "%s" FOR "%s" WITH BASELINE crosscat()' % (
+            create_analysis_schema_name(table_name),
+            create_population_name(table_name)
+        )
 
 def initialize_models(table_name, num_models=1):
     return 'INITIALIZE %d MODELS FOR "%s"' % (
-        num_models, create_metamodel_name(table_name))
+        num_models, create_analysis_schema_name(table_name))
 
 def analyze_metamodel(table_name, num_minutes=1):
     return 'ANALYZE "%s" FOR %d MINUTES WAIT ( OPTIMIZED )' % (
-        create_metamodel_name(table_name), num_minutes)
+        create_analysis_schema_name(table_name), num_minutes)
 
 def simulate(table_name, var_name, limit=10):
     return 'SIMULATE %s FROM "%s" LIMIT %d' % (
