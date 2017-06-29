@@ -34,17 +34,20 @@ def analyze():
         columns = column_names(data)
         columns_str = ','.join([serialize_value(column) for column in columns])
         values_str = ','.join(['?' for column in columns])
-        insert_query = 'INSERT INTO "%s" (%s) VALUES (%s)' % (table_name, columns_str, values_str)
+        insert_query = 'INSERT INTO "%s" (%s) VALUES (%s)' % (
+            table_name, columns_str, values_str)
         print insert_query
         for row in data[1:][:]:
             # TODO: SQL injection abound here
             print insert_query
             bdb.sql_execute(insert_query, row)
 
-        for query in [create_population(table_name), create_metamodel(table_name)]:
+        for query in [create_population(table_name), \
+                create_metamodel(table_name)]:
             print query[:100]
             bdb.execute(query)
-        for query in [initialize_models(table_name, 32), analyze_metamodel(table_name)]:
+        for query in [initialize_models(table_name, 32), \
+                analyze_metamodel(table_name)]:
             print query[:100]
             bdb.execute(query)
     return 'OK'
