@@ -57,9 +57,9 @@ def create_metamodel(table_name):
             create_population_name(table_name)
         )
 
-def initialize_models(table_name, num_models=1):
-    return 'INITIALIZE %d MODELS FOR "%s"' % (
-        num_models, create_analysis_schema_name(table_name))
+def initialize_models(table_name, num_analyses=1):
+    return 'INITIALIZE %d ANALYSES FOR "%s"' % (
+        num_analyses, create_analysis_schema_name(table_name))
 
 def analyze_metamodel(table_name, num_minutes=1):
     return 'ANALYZE "%s" FOR %d MINUTES WAIT ( OPTIMIZED )' % (
