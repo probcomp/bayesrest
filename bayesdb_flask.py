@@ -6,10 +6,10 @@ def create_population_name(table_name):
     return table_name + '_p'
 
 def create_analysis_schema_name(table_name):
-    return table_name + '_m'
+    return table_name + '_crosscat'
 
 def create_dependence_probability_name(table_name):
-    return table_name + '_m'
+    return table_name + '_depprob'
 
 def serialize_value(val):
     if isinstance(val, str):
