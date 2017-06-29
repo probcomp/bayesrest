@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.debug = True
 
-@app.route("/analyze", methods=['POST'])
+@app.route('/analyze', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def analyze():
     table_name = str(request.json['name'])
@@ -34,7 +34,7 @@ def analyze():
         columns = column_names(data)
         columns_str = ','.join([serialize_value(column) for column in columns])
         values_str = ','.join(['?' for column in columns])
-        insert_query = "INSERT INTO \"%s\" (%s) VALUES (%s)" %(table_name, columns_str, values_str)
+        insert_query = 'INSERT INTO "%s" (%s) VALUES (%s)' % (table_name, columns_str, values_str)
         print insert_query
         for row in data[1:][:]:
             # TODO: SQL injection abound here
@@ -47,19 +47,19 @@ def analyze():
         for query in [initialize_models(table_name, 32), analyze_metamodel(table_name)]:
             print query[:100]
             bdb.execute(query)
-    return "OK"
+    return 'OK'
 
-@app.route("/query", methods=['GET'])
+@app.route('/query', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def query():
-    table_name = "test"
-    query = simulate(table_name, "Age")
+    table_name = 'test'
+    query = simulate(table_name, 'Age')
     bdb = create_bdb(table_name)
     with bdb.savepoint():
         cursor = bdb.execute(query)
     return cursor_to_df(cursor).to_json()
 
-@app.route("/predictive-relationship", methods=['POST'])
+@app.route('/predictive-relationship', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def predictive_relationship():
     table_name = str(request.json['name'])
@@ -74,6 +74,6 @@ def predictive_relationship():
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     context = ('selfsigned.crt', 'selfsigned.key')
     app.run(host='localhost', port=5000, debug=True, ssl_context=context)
