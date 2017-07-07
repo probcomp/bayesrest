@@ -89,6 +89,6 @@ def select_dependence_probabilities(table_name, column_name):
         'DESC' % (create_dependence_probability_name(table_name), column_name)
 
 def infer_explicit_predict(table_name, column_name):
-    return 'INFER EXPLICIT PREDICT \"%s\" USING ? SAMPLES FROM \"%s\" WHERE ' \
-        '\"%s\".rowid = ?' %(column_name, create_population_name(table_name), \
-                             table_name)
+    return 'INFER EXPLICIT PREDICT "%s" USING ? SAMPLES FROM "%s" WHERE ' \
+        '"%s".rowid = ?' % (column_name, create_population_name(table_name), \
+                            table_name)
