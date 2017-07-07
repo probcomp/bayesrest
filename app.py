@@ -77,6 +77,20 @@ def predictive_relationship():
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
+@app.route("/predict", methods=['post'])
+@cross_origin(supports_credentials=True)
+def predict():
+    table_name = str(request.json['name'])
+    row = request.json['row']
+    column = str(request.json['column'])
+    bdb = create_bdb(table_name)
+    with bdb.savepoint():
+        query = infer_explicit_predict(table_name, column)
+        print query
+        cursor = bdb.execute(query, [10, row])
+        result = [row[0] for row in cursor]
+    return json.dumps(result)
+
 if __name__ == '__main__':
     context = ('selfsigned.crt', 'selfsigned.key')
     app.run(host='localhost', port=5000, debug=True, ssl_context=context)
