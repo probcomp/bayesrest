@@ -2,7 +2,6 @@ import json
 
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-from OpenSSL import SSL
 
 import bayeslite
 
@@ -92,5 +91,4 @@ def predict():
     return json.dumps(result)
 
 if __name__ == '__main__':
-    context = ('selfsigned.crt', 'selfsigned.key')
-    app.run(host='localhost', port=5000, debug=True, ssl_context=context)
+    app.run(host='localhost', port=5000, debug=True)
