@@ -2,12 +2,15 @@ import json
 
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-
+import logging
 import bayeslite
 
 from iventure.utils_bql import cursor_to_df
 
 from bayesdb_flask import *
+
+# To enable logging for flask-cors,
+logging.getLogger('flask_cors').level = logging.DEBUG
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -19,7 +22,7 @@ def analyze():
     table_name = str(request.json['name'])
     data = request.json['data']
     bdb = create_bdb(table_name)
-    bdb.metamodels['cgpm'].set_multiprocess(True)
+    bdb.backends['cgpm'].set_multiprocess(True)
 
     with bdb.savepoint():
         for query in clear_artifacts(table_name):
@@ -42,11 +45,11 @@ def analyze():
             bdb.sql_execute(insert_query, row)
 
         for query in [create_population(table_name), \
-                create_metamodel(table_name)]:
+                create_generator(table_name)]:
             print query[:100]
             bdb.execute(query)
-        for query in [initialize_models(table_name, 32), \
-                analyze_metamodel(table_name)]:
+        for query in [initialize_models(table_name, 1), \
+                analyze_generator(table_name, 30)]:
             print query[:100]
             bdb.execute(query)
     return 'OK'
