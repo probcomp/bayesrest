@@ -69,14 +69,24 @@ def query():
 def predictive_relationship():
     table_name = str(request.json['name'])
     column = str(request.json['column'])
+    print "column = ", column
     bdb = create_bdb(table_name) # should really be a shared filename
+    print "TEST A"
     with bdb.savepoint():
+        print "TEST B"
         bdb.sql_execute(drop_dependence_probability_table(table_name))
-        bdb.execute(create_dependence_probability_table(table_name))
+        print "TEST C"
+        create = create_dependence_probability_table(table_name)
+        print "create =", create
+        bdb.execute(create)
+        print "TEST D"
         query = select_dependence_probabilities(table_name, column)
         print query
         cursor = bdb.execute(query)
         result = [row[0] for row in cursor]
+    print "TEST E"
+    print json.dumps(result)
+    print "TEST F"
     return json.dumps(result)
 
 @app.route("/predict", methods=['post'])
@@ -90,6 +100,20 @@ def predict():
         query = infer_explicit_predict(table_name, column)
         print query
         cursor = bdb.execute(query, [10, row])
+        result = [row[0] for row in cursor]
+    return json.dumps(result)
+
+@app.route("/find-anomalies", methods=['post'])
+@cross_origin(supports_credentials=True)
+def find_anomalies():
+    table_name = str(request.json['name'])
+    target = str(request.json['target'])
+    context = [str(x) for x in request.json['context']]
+    bdb = create_bdb(table_name)
+    with bdb.savepoint():
+        query = find_anomalies_query(table_name, target, context)
+        print query
+        cursor = bdb.execute(query)
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
