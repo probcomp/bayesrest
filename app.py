@@ -8,6 +8,7 @@ import bayeslite
 from iventure.utils_bql import cursor_to_df
 
 from bayesdb_flask import *
+from bayeslite import bayesdb_nullify
 
 # To enable logging for flask-cors,
 logging.getLogger('flask_cors').level = logging.DEBUG
@@ -43,6 +44,9 @@ def analyze():
             # TODO: SQL injection abound here
             print insert_query
             bdb.sql_execute(insert_query, row)
+            
+        # nullify
+        bayesdb_nullify(bdb, table_name, '')
 
         for query in [create_population(table_name), \
                 create_generator(table_name)]:

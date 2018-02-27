@@ -92,7 +92,7 @@ def infer_explicit_predict(table_name, column_name):
     return 'INFER EXPLICIT PREDICT "%s" USING ? SAMPLES FROM "%s" WHERE ' \
         '"%s".rowid = ?' % (column_name, create_population_name(table_name), \
                             table_name)
-                            
+
 def find_anomalies_query(table_name, target_column, context_columns):
     return 'ESTIMATE _rowid_, *, PREDICTIVE PROBABILITY OF %s GIVEN ' \
     '("%s") AS "pred_prob" FROM "%s" ORDER BY "pred_prob"' % (target_column,
