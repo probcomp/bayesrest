@@ -44,7 +44,7 @@ def analyze():
             # TODO: SQL injection abound here
             print insert_query
             bdb.sql_execute(insert_query, row)
-            
+
         # nullify
         bayesdb_nullify(bdb, table_name, '')
 
@@ -52,8 +52,9 @@ def analyze():
                 create_generator(table_name)]:
             print query[:100]
             bdb.execute(query)
-        for query in [initialize_models(table_name, 1), \
-                analyze_generator(table_name, 30)]:
+        # originally ran 32 models
+        for query in [initialize_models(table_name, 8), \
+                analyze_generator(table_name, 10)]:
             print query[:100]
             bdb.execute(query)
     return 'OK'
