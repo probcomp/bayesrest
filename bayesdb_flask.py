@@ -66,7 +66,7 @@ def analyze_generator(table_name, num_seconds=60):
         create_generator_name(table_name), num_seconds)
 
 def simulate(table_name, var_name, limit=10):
-    return 'SIMULATE %s FROM "%s" LIMIT %d' % (
+    return 'SIMULATE "%s" FROM "%s" LIMIT %d' % (
         var_name, create_population_name(table_name), limit)
 
 ################################################################################
@@ -94,6 +94,6 @@ def infer_explicit_predict(table_name, column_name):
                             table_name)
 
 def find_anomalies_query(table_name, target_column, context_columns):
-    return 'ESTIMATE _rowid_, *, PREDICTIVE PROBABILITY OF %s GIVEN ' \
+    return 'ESTIMATE _rowid_, *, PREDICTIVE PROBABILITY OF "%s" GIVEN ' \
     '("%s") AS "pred_prob" FROM "%s" ORDER BY "pred_prob"' % (target_column,
     "\", \"".join(context_columns), create_population_name(table_name)) # ASCENDING
