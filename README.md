@@ -17,4 +17,4 @@ docker-compose up
 ```
 (Use the --build option if you've made docker changes.)
 
-Service is accessible at `https://bayesrest.probcomp.dev:8443`
+Service is accessible at `https://bayesrest.probcomp.dev:9443`
