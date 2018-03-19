@@ -2,13 +2,16 @@ import json
 
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-from OpenSSL import SSL
-
+import logging
 import bayeslite
 
 from iventure.utils_bql import cursor_to_df
 
 from bayesdb_flask import *
+from bayeslite import bayesdb_nullify
+
+# To enable logging for flask-cors,
+logging.getLogger('flask_cors').level = logging.DEBUG
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -20,7 +23,7 @@ def analyze():
     table_name = str(request.json['name'])
     data = request.json['data']
     bdb = create_bdb(table_name)
-    bdb.metamodels['cgpm'].set_multiprocess(True)
+    bdb.backends['cgpm'].set_multiprocess(True)
 
     with bdb.savepoint():
         for query in clear_artifacts(table_name):
@@ -42,12 +45,16 @@ def analyze():
             print insert_query
             bdb.sql_execute(insert_query, row)
 
+        # nullify
+        bayesdb_nullify(bdb, table_name, '')
+
         for query in [create_population(table_name), \
-                create_metamodel(table_name)]:
+                create_generator(table_name)]:
             print query[:100]
             bdb.execute(query)
-        for query in [initialize_models(table_name, 32), \
-                analyze_metamodel(table_name)]:
+        # originally ran 32 models
+        for query in [initialize_models(table_name, 8), \
+                analyze_generator(table_name, 10)]:
             print query[:100]
             bdb.execute(query)
     return 'OK'
@@ -67,14 +74,24 @@ def query():
 def predictive_relationship():
     table_name = str(request.json['name'])
     column = str(request.json['column'])
+    print "column = ", column
     bdb = create_bdb(table_name) # should really be a shared filename
+    print "TEST A"
     with bdb.savepoint():
+        print "TEST B"
         bdb.sql_execute(drop_dependence_probability_table(table_name))
-        bdb.execute(create_dependence_probability_table(table_name))
+        print "TEST C"
+        create = create_dependence_probability_table(table_name)
+        print "create =", create
+        bdb.execute(create)
+        print "TEST D"
         query = select_dependence_probabilities(table_name, column)
         print query
         cursor = bdb.execute(query)
         result = [row[0] for row in cursor]
+    print "TEST E"
+    print json.dumps(result)
+    print "TEST F"
     return json.dumps(result)
 
 @app.route("/predict", methods=['post'])
@@ -91,6 +108,19 @@ def predict():
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
+@app.route("/find-anomalies", methods=['post'])
+@cross_origin(supports_credentials=True)
+def find_anomalies():
+    table_name = str(request.json['name'])
+    target = str(request.json['target'])
+    context = [str(x) for x in request.json['context']]
+    bdb = create_bdb(table_name)
+    with bdb.savepoint():
+        query = find_anomalies_query(table_name, target, context)
+        print query
+        cursor = bdb.execute(query)
+        result = [row[0] for row in cursor]
+    return json.dumps(result)
+
 if __name__ == '__main__':
-    context = ('selfsigned.crt', 'selfsigned.key')
-    app.run(host='localhost', port=5000, debug=True, ssl_context=context)
+    app.run(host='0.0.0.0', port=5000, debug=True)
