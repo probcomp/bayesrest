@@ -1,0 +1,23 @@
+version: "3"
+networks:
+  stunnelproxy_probcomp:
+    external:
+      name: stunnelproxy_probcomp
+volumes:
+  dhparam:
+    driver: local
+
+services:
+  app:
+    build: .
+    networks:
+      default:
+      stunnelproxy_probcomp:
+        aliases:
+          - bayesrest
+    environment:
+      HTTPS_METHOD: 'noredirect'
+      VIRTUAL_HOST: 'bayesrest.probcomp.dev'
+      VIRTUAL_PORT: 5000
+    volumes:
+      - .:/app:cached
