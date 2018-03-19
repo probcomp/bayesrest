@@ -97,3 +97,8 @@ def find_anomalies_query(table_name, target_column, context_columns):
     return 'ESTIMATE _rowid_, *, PREDICTIVE PROBABILITY OF "%s" GIVEN ' \
     '("%s") AS "pred_prob" FROM "%s" ORDER BY "pred_prob"' % (target_column,
     "\", \"".join(context_columns), create_population_name(table_name)) # ASCENDING
+
+def find_peer_rows_query(table_name, target_row, context_columns):
+    return 'ESTIMATE _rowid_, *, SIMILARITY TO ("rowid" == %s) ' \
+    'IN THE CONTEXT OF %s AS sim FROM "%s" order by sim desc' % (target_row, ",".join([str('"' + c + '"' for c in context_columns)]),
+     create_population_name(table_name))
