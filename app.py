@@ -122,5 +122,20 @@ def find_anomalies():
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
+@app.route("/find-peers", methods=['post'])
+@cross_origin(supports_credentials=True)
+def find_peers():
+    table_name = str(request.json['name'])
+    target = str(request.json['target'])
+    context = [str(x) for x in request.json['context']]
+    bdb = create_bdb(table_name)
+    with bdb.savepoint():
+        query = find_peer_rows_query(table_name, target, context)
+        print query
+        cursor = bdb.execute(query)
+        result = [row[0] for row in cursor]
+    return json.dumps(result)
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
