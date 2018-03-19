@@ -5,7 +5,7 @@ import bayeslite
 def create_population_name(table_name):
     return table_name + '_p'
 
-def create_analysis_schema_name(table_name):
+def create_generator_name(table_name):
     return table_name + '_crosscat'
 
 def create_dependence_probability_name(table_name):
@@ -26,8 +26,8 @@ def serialize_value(val):
             )
 
 def clear_artifacts(table_name):
-    return ['DROP ANALYSIS SCHEMA IF EXISTS "%s"' %
-                (create_analysis_schema_name(table_name),),
+    return ['DROP GENERATOR IF EXISTS "%s"' %
+                (create_generator_name(table_name),),
             'DROP POPULATION IF EXISTS "%s"' %
                 (create_population_name(table_name),),
             'DROP TABLE IF EXISTS "%s"' % (table_name,),
@@ -51,22 +51,22 @@ def create_population(table_name):
     return 'CREATE POPULATION "%s" FOR "%s" WITH SCHEMA ( GUESS(*) )' % (
         create_population_name(table_name), table_name)
 
-def create_metamodel(table_name):
-    return 'CREATE ANALYSIS SCHEMA "%s" FOR "%s" WITH BASELINE crosscat()' % (
-            create_analysis_schema_name(table_name),
+def create_generator(table_name):
+    return 'CREATE GENERATOR "%s" FOR "%s"' % (
+            create_generator_name(table_name),
             create_population_name(table_name)
         )
 
 def initialize_models(table_name, num_analyses=1):
-    return 'INITIALIZE %d ANALYSES FOR "%s"' % (
-        num_analyses, create_analysis_schema_name(table_name))
+    return 'INITIALIZE %d MODELS FOR "%s"' % (
+        num_analyses, create_generator_name(table_name))
 
-def analyze_metamodel(table_name, num_minutes=1):
-    return 'ANALYZE "%s" FOR %d MINUTES WAIT ( OPTIMIZED )' % (
-        create_analysis_schema_name(table_name), num_minutes)
+def analyze_generator(table_name, num_seconds=60):
+    return 'ANALYZE "%s" FOR %d SECONDS ( OPTIMIZED )' % (
+        create_generator_name(table_name), num_seconds)
 
 def simulate(table_name, var_name, limit=10):
-    return 'SIMULATE %s FROM "%s" LIMIT %d' % (
+    return 'SIMULATE "%s" FROM "%s" LIMIT %d' % (
         var_name, create_population_name(table_name), limit)
 
 ################################################################################
@@ -92,3 +92,8 @@ def infer_explicit_predict(table_name, column_name):
     return 'INFER EXPLICIT PREDICT "%s" USING ? SAMPLES FROM "%s" WHERE ' \
         '"%s".rowid = ?' % (column_name, create_population_name(table_name), \
                             table_name)
+
+def find_anomalies_query(table_name, target_column, context_columns):
+    return 'ESTIMATE _rowid_, *, PREDICTIVE PROBABILITY OF "%s" GIVEN ' \
+    '("%s") AS "pred_prob" FROM "%s" ORDER BY "pred_prob"' % (target_column,
+    "\", \"".join(context_columns), create_population_name(table_name)) # ASCENDING
