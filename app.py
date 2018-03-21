@@ -125,7 +125,7 @@ def find_anomalies():
 @app.route("/find-peers", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_peers():
-    table_name = str(request.json['name'])
+    table_name = "satellites_full"
     target = str(request.json['target'])
     context = [str(x) for x in request.json['context']]
     bdb = create_bdb(table_name)

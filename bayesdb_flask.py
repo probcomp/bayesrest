@@ -99,6 +99,7 @@ def find_anomalies_query(table_name, target_column, context_columns):
     "\", \"".join(context_columns), create_population_name(table_name)) # ASCENDING
 
 def find_peer_rows_query(table_name, target_row, context_columns):
-    return 'ESTIMATE _rowid_, *, SIMILARITY TO ("rowid" == %s) ' \
-    'IN THE CONTEXT OF %s AS sim FROM "%s" order by sim desc' % (target_row, ",".join([str('"' + c + '"' for c in context_columns)]),
-     create_population_name(table_name))
+    context_str = ",".join([str('"' + c + '"') for c in context_columns])
+    return  'ESTIMATE _rowid_, *, SIMILARITY TO ("rowid" == %s) ' \
+        'IN THE CONTEXT OF %s AS sim FROM "%s" order by sim desc' \
+        % (target_row, context_str, create_population_name(table_name))
