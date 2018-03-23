@@ -14,4 +14,4 @@ ENV NAME World
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-ENTRYPOINT ["start.sh", "python", "app.py"]
+ENTRYPOINT ["/app/docker-entrypoint.sh", "start.sh", "python", "app.py"]
