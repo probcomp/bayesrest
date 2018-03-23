@@ -1,5 +1,9 @@
+import argparse
 import json
+import os
+import sys
 
+import flask
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 import logging
@@ -17,56 +21,19 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.debug = True
 
-@app.route('/analyze', methods=['POST'])
-@cross_origin(supports_credentials=True)
-def analyze():
-    table_name = str(request.json['name'])
-    data = request.json['data']
-    bdb = create_bdb(table_name)
-    bdb.backends['cgpm'].set_multiprocess(True)
+def set_bdb():
+    os.path.realpath()
 
-    with bdb.savepoint():
-        for query in clear_artifacts(table_name):
-            print query[:100]
-            bdb.execute(query)
-        create_table_query = create_table(table_name, data)
-        print create_table_query
-        bdb.sql_execute(create_table_query)
-
-        # insert rows
-        columns = column_names(data)
-        columns_str = ','.join([serialize_value(column) for column in columns])
-        values_str = ','.join(['?' for column in columns])
-        insert_query = 'INSERT INTO "%s" (%s) VALUES (%s)' % (
-            table_name, columns_str, values_str)
-        print insert_query
-        for row in data[1:][:]:
-            # TODO: SQL injection abound here
-            print insert_query
-            bdb.sql_execute(insert_query, row)
-
-        # nullify
-        bayesdb_nullify(bdb, table_name, '')
-
-        for query in [create_population(table_name), \
-                create_generator(table_name)]:
-            print query[:100]
-            bdb.execute(query)
-        # originally ran 32 models
-        for query in [initialize_models(table_name, 8), \
-                analyze_generator(table_name, 10)]:
-            print query[:100]
-            bdb.execute(query)
-    return 'OK'
+def get_bdb():
+     assert hasattr(flask.g, 'bdb'), 'bayeslite .bdb file was not initialized on startup'
 
 @app.route('/query', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def query():
     table_name = 'test'
     query = simulate(table_name, 'Age')
-    bdb = create_bdb(table_name)
-    with bdb.savepoint():
-        cursor = bdb.execute(query)
+    with flask.g.bdb.savepoint():
+        cursor = flask.g.bdb.execute(query)
     return cursor_to_df(cursor).to_json()
 
 @app.route('/predictive-relationship', methods=['POST'])
@@ -74,24 +41,13 @@ def query():
 def predictive_relationship():
     table_name = str(request.json['name'])
     column = str(request.json['column'])
-    print "column = ", column
-    bdb = create_bdb(table_name) # should really be a shared filename
-    print "TEST A"
-    with bdb.savepoint():
-        print "TEST B"
-        bdb.sql_execute(drop_dependence_probability_table(table_name))
-        print "TEST C"
+    with flask.g.bdb.savepoint():
+        flask.g.bdb.sql_execute(drop_dependence_probability_table(table_name))
         create = create_dependence_probability_table(table_name)
-        print "create =", create
-        bdb.execute(create)
-        print "TEST D"
+        flask.g.bdb.execute(create)
         query = select_dependence_probabilities(table_name, column)
-        print query
-        cursor = bdb.execute(query)
+        cursor = flask.g.bdb.execute(query)
         result = [row[0] for row in cursor]
-    print "TEST E"
-    print json.dumps(result)
-    print "TEST F"
     return json.dumps(result)
 
 @app.route("/predict", methods=['post'])
@@ -100,11 +56,9 @@ def predict():
     table_name = str(request.json['name'])
     row = request.json['row']
     column = str(request.json['column'])
-    bdb = create_bdb(table_name)
-    with bdb.savepoint():
+    with flask.g.bdb.savepoint():
         query = infer_explicit_predict(table_name, column)
-        print query
-        cursor = bdb.execute(query, [10, row])
+        cursor = flask.g.bdb.execute(query, [10, row])
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
@@ -114,13 +68,26 @@ def find_anomalies():
     table_name = str(request.json['name'])
     target = str(request.json['target'])
     context = [str(x) for x in request.json['context']]
-    bdb = create_bdb(table_name)
-    with bdb.savepoint():
+    with flask.g.bdb.savepoint():
         query = find_anomalies_query(table_name, target, context)
-        print query
-        cursor = bdb.execute(query)
+        cursor = flask.g.bdb.execute(query)
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
+def is_file(arg):
+    """
+    File 'type' for use with argparse. Raises an error of the argument is not
+    the path to a valid file.
+
+    """
+    if not os.path.isfile(arg):
+        raise argparse.ArgumentTypeError("{0} does not exist or is not a file".format(arg))
+    else:
+        return arg
+
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('bdb_file', nargs=1, type=is_file)
+    args = parser.parse_args()
+    flask.g.bdb = bayeslite.bayesdb_open(args.bdb_file)
     app.run(host='0.0.0.0', port=5000, debug=True)
