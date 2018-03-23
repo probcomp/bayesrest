@@ -3,9 +3,6 @@ networks:
   nginx_probcomp:
     external:
       name: nginx_probcomp
-volumes:
-  dhparam:
-    driver: local
 
 services:
   app:
