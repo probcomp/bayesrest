@@ -85,6 +85,20 @@ def find_anomalies():
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
+@app.route("/find-peers", methods=['post'])
+@cross_origin(supports_credentials=True)
+def find_peers():
+    table_name = "satellites_full"
+    target = str(request.json['target'])
+    context = [str(x) for x in request.json['context']]
+    bdb = get_bdb()
+    with bdb.savepoint():
+        query = find_peer_rows_query(table_name, target, context)
+        print query
+        cursor = bdb.execute(query)
+        result = [row[0] for row in cursor]
+    return json.dumps(result)
+
 def is_file(arg):
     """
     File 'type' for use with argparse. Raises an error of the argument is not
