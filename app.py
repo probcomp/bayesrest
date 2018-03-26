@@ -21,18 +21,26 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.debug = True
 
-def set_bdb():
-    os.path.realpath()
-
 def get_bdb():
-     assert hasattr(flask.g, 'bdb'), 'bayeslite .bdb file was not initialized on startup'
+    if app.config['BDB_FILE'] is None:
+        raise RuntimeError('BDB_FILE was not set')
+    if not hasattr(flask.g, 'bdb'):
+        flask.g.bdb = bayeslite.bayesdb_open(app.config['BDB_FILE'])
+    return flask.g.bdb
+
+@app.route('/heartbeat', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def heartbeat():
+    get_bdb()
+    return 'OK'
 
 @app.route('/query', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def query():
     table_name = 'test'
     query = simulate(table_name, 'Age')
-    with flask.g.bdb.savepoint():
+    bdb = get_bdb()
+    with bdb.savepoint():
         cursor = flask.g.bdb.execute(query)
     return cursor_to_df(cursor).to_json()
 
@@ -41,12 +49,13 @@ def query():
 def predictive_relationship():
     table_name = str(request.json['name'])
     column = str(request.json['column'])
-    with flask.g.bdb.savepoint():
-        flask.g.bdb.sql_execute(drop_dependence_probability_table(table_name))
+    bdb = get_bdb()
+    with bdb.savepoint():
+        bdb.sql_execute(drop_dependence_probability_table(table_name))
         create = create_dependence_probability_table(table_name)
-        flask.g.bdb.execute(create)
+        bdb.execute(create)
         query = select_dependence_probabilities(table_name, column)
-        cursor = flask.g.bdb.execute(query)
+        cursor = bdb.execute(query)
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
@@ -58,7 +67,7 @@ def predict():
     column = str(request.json['column'])
     with flask.g.bdb.savepoint():
         query = infer_explicit_predict(table_name, column)
-        cursor = flask.g.bdb.execute(query, [10, row])
+        cursor = bdb.execute(query, [10, row])
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
@@ -68,9 +77,9 @@ def find_anomalies():
     table_name = str(request.json['name'])
     target = str(request.json['target'])
     context = [str(x) for x in request.json['context']]
-    with flask.g.bdb.savepoint():
+    with bdb.savepoint():
         query = find_anomalies_query(table_name, target, context)
-        cursor = flask.g.bdb.execute(query)
+        cursor = bdb.execute(query)
         result = [row[0] for row in cursor]
     return json.dumps(result)
 
@@ -89,5 +98,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('bdb_file', nargs=1, type=is_file)
     args = parser.parse_args()
-    flask.g.bdb = bayeslite.bayesdb_open(args.bdb_file)
+    (bdb_file,) = args.bdb_file
+    app.config.update(dict(BDB_FILE=bdb_file))
     app.run(host='0.0.0.0', port=5000, debug=True)
