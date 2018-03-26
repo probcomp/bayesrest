@@ -78,6 +78,7 @@ def find_anomalies():
     table_name = str(request.json['name'])
     target = str(request.json['target'])
     context = [str(x) for x in request.json['context']]
+    bdb = get_bdb()
     with bdb.savepoint():
         query = find_anomalies_query(table_name, target, context)
         cursor = bdb.execute(query)
