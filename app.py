@@ -91,7 +91,7 @@ def find_peers():
     table_name = "satellites_full"
     target = str(request.json['target'])
     context = [str(x) for x in request.json['context']]
-    bdb = create_bdb(table_name)
+    bdb = get_bdb()
     with bdb.savepoint():
         query = find_peer_rows_query(table_name, target, context)
         print query
