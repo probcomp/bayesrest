@@ -8,10 +8,9 @@ ADD . /app
 
 RUN conda install -n python2 --quiet --yes --file requirements.txt
 
-# Define environment variable
-ENV NAME World
+COPY docker-entrypoint.sh /usr/local/bin/
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-CMD ["start.sh", "python", "app.py"]
+ENTRYPOINT ["docker-entrypoint.sh", "start.sh", "python", "app.py"]

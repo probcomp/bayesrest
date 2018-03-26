@@ -34,9 +34,6 @@ def clear_artifacts(table_name):
             'DROP TABLE IF EXISTS "%s"' %
                 (create_dependence_probability_name(table_name),)]
 
-def create_bdb(table_name):
-    return bayeslite.bayesdb_open(table_name + '.bdb')
-
 def column_names(matrix):
     return matrix[0][:]
 
