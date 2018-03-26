@@ -41,7 +41,7 @@ def query():
     query = simulate(table_name, 'Age')
     bdb = get_bdb()
     with bdb.savepoint():
-        cursor = flask.g.bdb.execute(query)
+        cursor = bdb.execute(query)
     return cursor_to_df(cursor).to_json()
 
 @app.route('/predictive-relationship', methods=['POST'])
@@ -65,7 +65,8 @@ def predict():
     table_name = str(request.json['name'])
     row = request.json['row']
     column = str(request.json['column'])
-    with flask.g.bdb.savepoint():
+    bdb = get_bdb()
+    with bdb.savepoint():
         query = infer_explicit_predict(table_name, column)
         cursor = bdb.execute(query, [10, row])
         result = [row[0] for row in cursor]
