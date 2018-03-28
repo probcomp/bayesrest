@@ -96,7 +96,8 @@ def find_peers():
         query = find_peer_rows_query(table_name, target, context)
         print query
         cursor = bdb.execute(query)
-        result = [row[0] for row in cursor]
+        result = [[row[0], row[1]] for row in cursor]
+        print result
     return json.dumps(result)
 
 def is_file(arg):
