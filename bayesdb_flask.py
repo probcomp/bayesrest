@@ -91,9 +91,11 @@ def infer_explicit_predict(table_name, column_name):
                             table_name)
 
 def find_anomalies_query(table_name, target_column, context_columns):
-    return 'ESTIMATE _rowid_, *, PREDICTIVE PROBABILITY OF "%s" GIVEN ' \
-    '("%s") AS "pred_prob" FROM "%s" ORDER BY "pred_prob"' % (target_column,
-    "\", \"".join(context_columns), create_population_name(table_name)) # ASCENDING
+    context_str = ",".join([str('"' + c + '"') for c in context_columns])
+    q = 'ESTIMATE _rowid_, PREDICTIVE PROBABILITY OF "%s" GIVEN ' \
+    '(%s) AS "pred_prob" FROM "%s" ORDER BY pred_prob' \
+    % (target_column, context_str, create_population_name(table_name))
+    return q
 
 def find_peer_rows_query(table_name, target_row, context_columns):
     context_str = ",".join([str('"' + c + '"') for c in context_columns])

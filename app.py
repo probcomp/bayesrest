@@ -12,6 +12,7 @@ from iventure.utils_bql import cursor_to_df
 
 from bayesdb_flask import *
 from bayeslite import bayesdb_nullify
+from bayeslite.backends.cgpm_backend import CGPM_Backend
 
 # To enable logging for flask-cors,
 logging.getLogger('flask_cors').level = logging.DEBUG
@@ -24,7 +25,9 @@ def get_bdb():
     if app.config['BDB_FILE'] is None:
         raise RuntimeError('BDB_FILE was not set')
     if not hasattr(flask.g, 'bdb'):
-        flask.g.bdb = bayeslite.bayesdb_open(app.config['BDB_FILE'])
+        flask.g.bdb = bayeslite.bayesdb_open(pathname=app.config['BDB_FILE'], builtin_backends=False)
+        cgpm_backend = CGPM_Backend({}, multiprocess=False)
+        bayeslite.bayesdb_register_backend(flask.g.bdb, cgpm_backend)
     return flask.g.bdb
 
 @app.route('/heartbeat', methods=['GET'])
@@ -74,14 +77,17 @@ def predict():
 @app.route("/find-anomalies", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_anomalies():
-    table_name = str(request.json['name'])
+    #  table_name = str(request.json['name'])
+    table_name = "satellites_full"
     target = str(request.json['target'])
     context = [str(x) for x in request.json['context']]
     bdb = get_bdb()
     with bdb.savepoint():
         query = find_anomalies_query(table_name, target, context)
+        print query
         cursor = bdb.execute(query)
         result = [row[0] for row in cursor]
+        print result
     return json.dumps(result)
 
 @app.route("/find-peers", methods=['post'])
