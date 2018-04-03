@@ -25,4 +25,7 @@ docker-compose up
 Service is accessible at `https://bayesrest.probcomp.dev:8443`
 
 ## Configuration
-To start the application with a `.bdb` file named something other than `database.bdb` you can change the value in the `services > app > command` section of `docker-compose.yml`.
+Additional configuration options can be set by defining a `application.cfg` file [as described in the Flask documentation](http://flask.pocoo.org/docs/0.12/config/). Valid options are:
+- `BDB_FILE`: The filename of the `.bdb` file to issue queries against.
+- `LOG_LEVEL`: The log level for the application. Valid options are `CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, and `NOTSET`.
+- `FLASK_CORS_LOG_LEVEL`: The log level for the `flask_cors` module.

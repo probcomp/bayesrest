@@ -106,3 +106,4 @@ ENV/
 /*.crt
 /*.key
 .pytest_cache
+/application.cfg

@@ -2,6 +2,16 @@ import unicodedata
 
 import bayeslite
 
+
+def create_last_query_table_query():
+    return 'CREATE TABLE IF NOT EXISTS bayesrest_last_query (id INTEGER PRIMARY KEY, query TEXT);'
+
+def get_last_query_query():
+    return 'SELECT query FROM bayesrest_last_query LIMIT 1;'
+
+def set_last_query_query():
+    return 'INSERT OR REPLACE INTO bayesrest_last_query (id, query) VALUES (1, ?);'
+
 def create_population_name(table_name):
     return table_name + '_p'
 
