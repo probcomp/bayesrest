@@ -7,6 +7,7 @@ WORKDIR /app
 ADD . /app
 
 RUN conda install -n python2 --quiet --yes --file requirements.txt
+RUN $CONDA_DIR/envs/python2/bin/pip install snaql
 
 COPY docker-entrypoint.sh /usr/local/bin/
 
