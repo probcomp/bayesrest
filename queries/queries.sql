@@ -67,3 +67,13 @@ AS sim
 FROM {{ population|default('bayesrest_population') }}
 ORDER BY sim DESC
 {% endsql %}
+
+{% sql 'pairwise_similarity' %}
+ESTIMATE SIMILARITY
+IN THE CONTEXT OF
+{% for context_column in context_columns %}
+"{{ context_column }}"{% if not loop.last %},{% endif %}
+{% endfor %}
+FROM PAIRWISE {{ population|default('bayesrest_population') }}
+WHERE rowid0 in ({{ row_set }}) and rowid1 in ({{ row_set }})
+{% endsql %}

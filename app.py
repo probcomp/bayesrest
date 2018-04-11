@@ -4,10 +4,11 @@ import logging
 import os
 
 import flask
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask.json import jsonify
 from flask_cors import CORS, cross_origin
 from snaql.factory import Snaql
+import pickle
 
 import bayeslite
 from bayeslite import bayesdb_nullify
@@ -32,24 +33,34 @@ def get_bdb():
         bayeslite.bayesdb_register_backend(flask.g.bdb, cgpm_backend)
     return flask.g.bdb
 
-def set_last_query(bdb, query):
-    quoted_query = json.dumps(query)
-    with bdb.savepoint():
-        bdb.sql_execute(queries.create_last_query_table())
-        bdb.sql_execute(queries.set_last_query(), [quoted_query])
+def save_explanation_data(data):
+    pickle.dump(data,
+                open("/tmp/bayes-query", "wb"))
 
-def get_last_query(bdb):
+def get_explanation_data():
+    res = pickle.load(open("/tmp/bayes-query", "rb"))
+    return res
+
+def pairwise_similarity_of_rows(table_name, context, row_ids):
+    bdb = get_bdb()
+
     with bdb.savepoint():
-        bdb.sql_execute(queries.create_last_query_table())
-        cursor = bdb.sql_execute(queries.get_last_query())
-    return json.loads(cursor.fetchone()[0])
+        query = queries.pairwise_similarity(
+            population=create_population_name(table_name),
+            context_columns= context,
+            row_set=row_ids
+        )
+
+        cursor = execute(bdb, query)
+        result = [[row[0], row[1], row[2]] for row in cursor]
+
+    return result
 
 def sql_execute(bdb, query, *args):
     app.logger.info('sql executing query: %s', query)
     return bdb.sql_execute(query, *args)
 
 def execute(bdb, query, *args):
-    set_last_query(bdb, query)
     app.logger.info('executing query: %s', query)
     return bdb.execute(query, *args)
 
@@ -72,8 +83,36 @@ def heartbeat():
 @app.route('/last-query', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def last_query():
-    bdb = get_bdb()
-    return jsonify({'last_query': get_last_query(bdb)})
+    last_data = get_explanation_data()
+    return jsonify({'last_query': last_data['query'],
+                    'type': last_data['type'],
+                    'target': last_data['target'],
+                    'context': last_data['context']})
+
+@app.route('/peer-heatmap-data', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def heatmap_data():
+    table_name = "satellites_full"
+    last_data = get_explanation_data()
+    context = last_data['context']
+
+    top_results = last_data['result'][:100]
+    top_row_ids = ",".join([str(row [0]) for row in top_results])
+
+    bottom_results = last_data['result'][-100:]
+    bottom_row_ids = ",".join([str(row [0]) for row in bottom_results])
+
+    result = [pairwise_similarity_of_rows(table_name, context, top_row_ids),
+              pairwise_similarity_of_rows(table_name, context, bottom_row_ids)]
+
+    return jsonify(result)
+
+@app.route('/anomaly-scatterplot-data', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def anomaly_data():
+    last_data = get_explanation_data()
+    result = last_data['result']
+    return jsonify(result)
 
 @app.route("/find-anomalies", methods=['post'])
 @cross_origin(supports_credentials=True)
@@ -90,8 +129,14 @@ def find_anomalies():
             context_columns=context
         )
         cursor = execute(bdb, query)
-        result = [row[0] for row in cursor]
-    return jsonify(result)
+        full_result = [row for row in cursor]
+        client_result = [r[0] for r in full_result]
+        save_explanation_data({'type': 'anomalies',
+                               'query': query,
+                               'result': full_result,
+                               'target': target,
+                               'context': context})
+    return jsonify(client_result)
 
 @app.route("/find-peers", methods=['post'])
 @cross_origin(supports_credentials=True)
@@ -108,6 +153,11 @@ def find_peers():
         )
         cursor = execute(bdb, query)
         result = [[row[0], row[1]] for row in cursor]
+        save_explanation_data({'type': 'peers',
+                               'query': query,
+                               'result': result,
+                               'target': target,
+                               'context': context})
     return jsonify(result)
 
 def is_file(arg):
