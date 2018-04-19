@@ -121,9 +121,13 @@ def table_data():
     query = queries.get_full_table(
         table_name=table_name
     )
+
     bdb = get_bdb()
     cursor = execute(bdb, query)
-    return jsonify([r for r in cursor])
+    col_name_list = [tuple[0] for tuple in cursor.description]
+
+    return jsonify({'columns': col_name_list,
+                    'data': [r for r in cursor] })
 
 @app.route("/find-anomalies", methods=['post'])
 @cross_origin(supports_credentials=True)
