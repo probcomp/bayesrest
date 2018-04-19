@@ -114,6 +114,17 @@ def anomaly_data():
     result = last_data['result']
     return jsonify(result)
 
+@app.route('/table-data', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def table_data():
+    table_name = "satellites_full"
+    query = queries.get_full_table(
+        table_name=table_name
+    )
+    bdb = get_bdb()
+    cursor = execute(bdb, query)
+    return jsonify([r for r in cursor])
+
 @app.route("/find-anomalies", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_anomalies():
