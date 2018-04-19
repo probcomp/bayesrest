@@ -29,3 +29,4 @@ Additional configuration options can be set by defining a `application.cfg` file
 - `BDB_FILE`: The filename of the `.bdb` file to issue queries against.
 - `LOG_LEVEL`: The log level for the application. Valid options are `CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, and `NOTSET`.
 - `FLASK_CORS_LOG_LEVEL`: The log level for the `flask_cors` module.
+- `TABLE_NAME`: The table containing the data under analysis.

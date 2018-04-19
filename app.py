@@ -33,6 +33,11 @@ def get_bdb():
         bayeslite.bayesdb_register_backend(flask.g.bdb, cgpm_backend)
     return flask.g.bdb
 
+def get_table_name():
+    if not 'TABLE_NAME' in app.config:
+        raise RuntimeError('TABLE_NAME was not set')
+    return app.config['TABLE_NAME']
+
 def save_explanation_data(data):
     pickle.dump(data,
                 open("/tmp/bayes-query", "wb"))
@@ -92,7 +97,7 @@ def last_query():
 @app.route('/peer-heatmap-data', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def heatmap_data():
-    table_name = "satellites_full"
+    table_name = get_table_name()
     last_data = get_explanation_data()
     context = last_data['context']
 
@@ -117,7 +122,7 @@ def anomaly_data():
 @app.route("/find-anomalies", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_anomalies():
-    table_name = "satellites_full"
+    table_name = get_table_name()
     target = str(request.json['target'])
     context = request.json['context']
     bdb = get_bdb()
@@ -141,7 +146,7 @@ def find_anomalies():
 @app.route("/find-peers", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_peers():
-    table_name = "satellites_full"
+    table_name = get_table_name()
     target = str(request.json['target'])
     context = request.json['context']
     bdb = get_bdb()
