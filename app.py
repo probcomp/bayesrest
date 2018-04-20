@@ -119,6 +119,21 @@ def anomaly_data():
     result = last_data['result']
     return jsonify(result)
 
+@app.route('/table-data', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def table_data():
+    table_name = get_table_name()
+    query = queries.get_full_table(
+        table_name=table_name
+    )
+
+    bdb = get_bdb()
+    cursor = execute(bdb, query)
+    col_name_list = [tuple[0] for tuple in cursor.description]
+
+    return jsonify({'columns': col_name_list,
+                    'data': [r for r in cursor] })
+
 @app.route("/find-anomalies", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_anomalies():
