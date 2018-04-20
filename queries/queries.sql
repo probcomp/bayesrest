@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS bayesrest_last_query (id INTEGER PRIMARY KEY, query T
 {% endsql %}
 
 {% sql 'get_full_table' %}
-SELECT _rowid_, * FROM {{ table_name }}
+SELECT *, _rowid_ FROM {{ table_name }}
 {% endsql %}
 
 {% sql 'get_last_query' %}
