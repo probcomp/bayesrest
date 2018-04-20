@@ -122,7 +122,7 @@ def anomaly_data():
 @app.route('/table-data', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def table_data():
-    table_name = "satellites_full"
+    table_name = get_table_name()
     query = queries.get_full_table(
         table_name=table_name
     )
