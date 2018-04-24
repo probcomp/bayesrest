@@ -150,7 +150,7 @@ def find_anomalies():
         )
         cursor = execute(bdb, query)
         full_result = [row for row in cursor]
-        client_result = [r[0] for r in full_result]
+        client_result = [r for r in full_result]
         save_explanation_data({'type': 'anomalies',
                                'query': query,
                                'result': full_result,
