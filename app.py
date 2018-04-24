@@ -39,20 +39,19 @@ def get_table_name():
     return app.config['TABLE_NAME']
 
 def save_explanation_data(data):
-    pickle.dump(data,
-                open("/tmp/bayes-query", "wb"))
+    pickle.dump(data, open("/tmp/bayes-query", "wb"))
 
 def get_explanation_data():
     res = pickle.load(open("/tmp/bayes-query", "rb"))
     return res
 
-def pairwise_similarity_of_rows(table_name, context, row_ids):
+def pairwise_similarity_of_rows(table_name, context_column, row_ids):
     bdb = get_bdb()
 
     with bdb.savepoint():
         query = queries.pairwise_similarity(
             population=create_population_name(table_name),
-            context_columns= context,
+            context_column=context_column,
             row_set=row_ids
         )
 
@@ -91,15 +90,15 @@ def last_query():
     last_data = get_explanation_data()
     return jsonify({'last_query': last_data['query'],
                     'type': last_data['type'],
-                    'target': last_data['target'],
-                    'context': last_data['context']})
+                    'target_column': last_data.get('target_column'),
+                    'context_columns': last_data.get('context_columns')})
 
 @app.route('/peer-heatmap-data', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def heatmap_data():
     table_name = get_table_name()
     last_data = get_explanation_data()
-    context = last_data['context']
+    context_column = last_data['context_columns'][0] # only one supported for now
 
     top_results = last_data['result'][:100]
     top_row_ids = ",".join([str(row [0]) for row in top_results])
@@ -107,8 +106,8 @@ def heatmap_data():
     bottom_results = last_data['result'][-100:]
     bottom_row_ids = ",".join([str(row [0]) for row in bottom_results])
 
-    result = [pairwise_similarity_of_rows(table_name, context, top_row_ids),
-              pairwise_similarity_of_rows(table_name, context, bottom_row_ids)]
+    result = [pairwise_similarity_of_rows(table_name, context_column, top_row_ids),
+              pairwise_similarity_of_rows(table_name, context_column, bottom_row_ids)]
 
     return jsonify(result)
 
@@ -138,15 +137,15 @@ def table_data():
 @cross_origin(supports_credentials=True)
 def find_anomalies():
     table_name = get_table_name()
-    target = str(request.json['target'])
-    context = request.json['context']
+    target_column = str(request.json['target-column'])
+    context_columns = request.json['context-columns']
     bdb = get_bdb()
     with bdb.savepoint():
         query = queries.find_anomalies(
             conditions=[queries.cond_anomalies_context],
             population=create_population_name(table_name),
-            target_column=target,
-            context_columns=context
+            target_column=target_column,
+            context_columns=context_columns
         )
         cursor = execute(bdb, query)
         full_result = [row for row in cursor]
@@ -154,30 +153,30 @@ def find_anomalies():
         save_explanation_data({'type': 'anomalies',
                                'query': query,
                                'result': full_result,
-                               'target': target,
-                               'context': context})
+                               'target_column': target_column,
+                               'context_columns': context_columns})
     return jsonify(client_result)
 
 @app.route("/find-peers", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_peers():
     table_name = get_table_name()
-    target = str(request.json['target'])
-    context = request.json['context']
+    target_row = str(request.json['target-row'])
+    context_column = request.json['context-column']
     bdb = get_bdb()
     with bdb.savepoint():
         query = queries.find_peer_rows(
             population=create_population_name(table_name),
-            context_columns=context,
-            target_row=target
+            context_column=context_column,
+            target_row=target_row
         )
         cursor = execute(bdb, query)
         result = [[row[0], row[1]] for row in cursor]
         save_explanation_data({'type': 'peers',
                                'query': query,
                                'result': result,
-                               'target': target,
-                               'context': context})
+                               'target_row': target_row,
+                               'context_columns': [context_column]})
     return jsonify(result)
 
 def is_file(arg):

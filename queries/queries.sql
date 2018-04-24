@@ -63,21 +63,14 @@ ORDER BY pred_prob
 
 {% sql 'find_peer_rows' %}
 ESTIMATE _rowid_, SIMILARITY TO ("rowid" == {{ target_row|guards.integer }})
-IN THE CONTEXT OF
-{% for context_column in context_columns %}
-  "{{ context_column }}"{% if not loop.last %},{% endif %}
-{% endfor %}
-AS sim
+IN THE CONTEXT OF {{ context_column }} AS sim
 FROM {{ population|default('bayesrest_population') }}
 ORDER BY sim DESC
 {% endsql %}
 
 {% sql 'pairwise_similarity' %}
 ESTIMATE SIMILARITY
-IN THE CONTEXT OF
-{% for context_column in context_columns %}
-"{{ context_column }}"{% if not loop.last %},{% endif %}
-{% endfor %}
+IN THE CONTEXT OF {{ context_column }}
 FROM PAIRWISE {{ population|default('bayesrest_population') }}
 WHERE rowid0 in ({{ row_set }}) and rowid1 in ({{ row_set }})
 {% endsql %}
