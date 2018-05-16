@@ -35,8 +35,13 @@ def get_bdb():
 
 def get_table_name():
     if not 'TABLE_NAME' in app.config:
-        raise RuntimeError('TABLE_NAME was not set')
+        raise RuntimeError('TABLE_NAME was not set in config file')
     return app.config['TABLE_NAME']
+
+def get_population_name():
+    if not 'POPULATION_NAME' in app.config:
+        raise RuntimeError('POPULATION_NAME was not set in config file')
+    return app.config['POPULATION_NAME']
 
 def save_explanation_data(data):
     pickle.dump(data, open("/tmp/bayes-query", "wb"))
@@ -50,7 +55,7 @@ def pairwise_similarity_of_rows(table_name, context_column, row_ids):
 
     with bdb.savepoint():
         query = queries.pairwise_similarity(
-            population=create_population_name(table_name),
+            population=get_population_name(),
             context_column=context_column,
             row_set=row_ids
         )
@@ -67,9 +72,6 @@ def sql_execute(bdb, query, *args):
 def execute(bdb, query, *args):
     app.logger.info('executing query: %s', query)
     return bdb.execute(query, *args)
-
-def create_population_name(table_name):
-    return table_name + '_p'
 
 def create_generator_name(table_name):
     return table_name + '_crosscat'
@@ -143,7 +145,7 @@ def find_anomalies():
     with bdb.savepoint():
         query = queries.find_anomalies(
             conditions=[queries.cond_anomalies_context],
-            population=create_population_name(table_name),
+            population=get_population_name(),
             target_column=target_column,
             context_columns=context_columns
         )
@@ -166,7 +168,7 @@ def find_peers():
     bdb = get_bdb()
     with bdb.savepoint():
         query = queries.find_peer_rows(
-            population=create_population_name(table_name),
+            population=get_population_name(),
             context_column=context_column,
             target_row=target_row
         )
