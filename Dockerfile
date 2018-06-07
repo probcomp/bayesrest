@@ -3,13 +3,13 @@ FROM probcomp/notebook
 
 # Set the working directory to /app
 WORKDIR /app
-# Copy the current directory contents into the container at /app
-ADD . /app
+ADD requirements.txt /app/
 
 RUN conda install -n python2 --quiet --yes --file requirements.txt
 RUN $CONDA_DIR/envs/python2/bin/pip install snaql
 
-COPY docker-entrypoint.sh /usr/local/bin/
+ADD . /app
+ADD docker-entrypoint.sh /usr/local/bin/
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
