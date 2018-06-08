@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import os.path
 
 import flask
 from flask import Flask, request, send_file
@@ -12,7 +13,8 @@ import pickle
 
 import bayeslite
 from bayeslite import bayesdb_nullify
-from bayeslite.backends.cgpm_backend import CGPM_Backend
+from bayeslite.backend import BayesDB_Backend
+from bayeslite.backends.loom_backend import LoomBackend
 from iventure import utils_bql
 
 root_location = os.path.abspath(os.path.dirname(__file__))
@@ -28,9 +30,11 @@ def get_bdb():
         raise RuntimeError('BDB_FILE was not set')
     if not 'bdb' in flask.g:
         app.logger.info('instantiating a new bdb')
+        loompa = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
+        app.logger.info('loom path: ' + loompa)
         flask.g.bdb = bayeslite.bayesdb_open(pathname=app.config['BDB_FILE'], builtin_backends=False)
-        cgpm_backend = CGPM_Backend({}, multiprocess=False)
-        bayeslite.bayesdb_register_backend(flask.g.bdb, cgpm_backend)
+        loom_backend = LoomBackend(loompa)
+        bayeslite.bayesdb_register_backend(flask.g.bdb, loom_backend)
     return flask.g.bdb
 
 def get_table_name():
@@ -72,12 +76,6 @@ def sql_execute(bdb, query, *args):
 def execute(bdb, query, *args):
     app.logger.info('executing query: %s', query)
     return bdb.execute(query, *args)
-
-def create_generator_name(table_name):
-    return table_name + '_crosscat'
-
-def create_dependence_probability_name(table_name):
-    return table_name + '_depprob'
 
 @app.route('/heartbeat', methods=['GET'])
 @cross_origin(supports_credentials=True)
