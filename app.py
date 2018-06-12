@@ -29,11 +29,9 @@ def get_bdb():
     if not 'BDB_FILE' in app.config:
         raise RuntimeError('BDB_FILE was not set')
     if not 'bdb' in flask.g:
-        app.logger.info('instantiating a new bdb')
-        loompa = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
-        app.logger.info('loom path: ' + loompa)
+        loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
         flask.g.bdb = bayeslite.bayesdb_open(pathname=app.config['BDB_FILE'], builtin_backends=False)
-        loom_backend = LoomBackend(loompa)
+        loom_backend = LoomBackend(loom_path)
         bayeslite.bayesdb_register_backend(flask.g.bdb, loom_backend)
     return flask.g.bdb
 
