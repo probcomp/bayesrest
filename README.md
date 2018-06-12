@@ -38,3 +38,14 @@ docker-compose up
 (Use the --build option if you've made docker changes.)
 
 Service is accessible at `https://bayesrest.probcomp.dev:8443`
+
+## Endpoints
+
+`/heartbeat`
+You can call the `/heartbeat` endpoint with a `GET` request to check if the API is operational.  It will responsd with a `200` status code if the API is up and running.
+
+`/table-data`
+You can call the `/table-data` endpoint with a `GET` request to receive a JSON object with the data currently stored in the API.  The JSON object has two elements: `'data'` and `'columns'`, both of which are arrays.
+
+`/find-anomalies`
+You can call the `/find-anomalies` endpoint with a `POST` request that sends an object with two keys: `'target-column'` and `'context-column'` -- the values associated with these keys must be the exact names of columns as they exist in your .bdb file.
