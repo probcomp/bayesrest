@@ -25,6 +25,11 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.debug = True
 
+def get_backend():
+    if not 'BACKEND' in app.config:
+        raise RuntimeError('BACKEND was not set in config file')
+    return app.config['BACKEND']
+
 def get_bdb():
     if not 'BDB_FILE' in app.config:
         raise RuntimeError('BDB_FILE was not set')
