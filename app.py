@@ -15,6 +15,7 @@ import bayeslite
 from bayeslite import bayesdb_nullify
 from bayeslite.backend import BayesDB_Backend
 from bayeslite.backends.loom_backend import LoomBackend
+from bayeslite.backends.cgpm_backend import CGPM_Backend
 from iventure import utils_bql
 
 root_location = os.path.abspath(os.path.dirname(__file__))
@@ -34,10 +35,22 @@ def get_bdb():
     if not 'BDB_FILE' in app.config:
         raise RuntimeError('BDB_FILE was not set')
     if not 'bdb' in flask.g:
-        loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
+        app.logger.info('instantiating a new bdb')
         flask.g.bdb = bayeslite.bayesdb_open(pathname=app.config['BDB_FILE'], builtin_backends=False)
-        loom_backend = LoomBackend(loom_path)
-        bayeslite.bayesdb_register_backend(flask.g.bdb, loom_backend)
+        
+        """ I have the feeling that we might be trying to do too much with this function.
+        Another way we might go about making the backend configurable is by changing 'get_backend'
+        to 'set_backend', and putting the below conditional logic in that function, though that
+        doesn't feel right either as it is not referentially transparent!  I look forward to Zane's
+        thoughts here."""
+        backend_config = get_backend()
+        if backend_config == 'cgpm':
+            backend = CGPM_backend({}, multiprocess=False)
+        elif backend_config == 'loom':
+            loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
+            backend = LoomBackend(loom_path)
+            
+        bayeslite.bayesdb_register_backend(flask.g.bdb, backend)
     return flask.g.bdb
 
 def get_table_name():
