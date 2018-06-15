@@ -26,10 +26,18 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.debug = True
 
-def get_backend():
+def get_backend_name():
     if not 'BACKEND' in app.config:
         raise RuntimeError('BACKEND was not set in config file')
     return app.config['BACKEND']
+
+def get_backend_object():    
+    backend_config = get_backend_name()
+    if backend_config == 'cgpm':
+        return CGPM_Backend({}, multiprocess=False)
+    elif backend_config == 'loom':
+        loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
+        return LoomBackend(loom_path)
 
 def get_bdb():
     if not 'BDB_FILE' in app.config:
@@ -37,19 +45,7 @@ def get_bdb():
     if not 'bdb' in flask.g:
         app.logger.info('instantiating a new bdb')
         flask.g.bdb = bayeslite.bayesdb_open(pathname=app.config['BDB_FILE'], builtin_backends=False)
-        
-        """ I have the feeling that we might be trying to do too much with this function.
-        Another way we might go about making the backend configurable is by changing 'get_backend'
-        to 'set_backend', and putting the below conditional logic in that function, though that
-        doesn't feel right either as it is not referentially transparent!  I look forward to Zane's
-        thoughts here."""
-        backend_config = get_backend()
-        if backend_config == 'cgpm':
-            backend = CGPM_backend({}, multiprocess=False)
-        elif backend_config == 'loom':
-            loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
-            backend = LoomBackend(loom_path)
-            
+        backend = get_backend_object()
         bayeslite.bayesdb_register_backend(flask.g.bdb, backend)
     return flask.g.bdb
 
