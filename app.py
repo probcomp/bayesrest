@@ -15,6 +15,7 @@ import bayeslite
 from bayeslite import bayesdb_nullify
 from bayeslite.backend import BayesDB_Backend
 from bayeslite.backends.loom_backend import LoomBackend
+from bayeslite.backends.cgpm_backend import CGPM_Backend
 from iventure import utils_bql
 
 root_location = os.path.abspath(os.path.dirname(__file__))
@@ -25,19 +26,27 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.debug = True
 
-def get_backend():
+def get_backend_name():
     if not 'BACKEND' in app.config:
         raise RuntimeError('BACKEND was not set in config file')
     return app.config['BACKEND']
+
+def get_backend_object():    
+    backend_config = get_backend_name()
+    if backend_config == 'cgpm':
+        return CGPM_Backend({}, multiprocess=False)
+    elif backend_config == 'loom':
+        loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
+        return LoomBackend(loom_path)
 
 def get_bdb():
     if not 'BDB_FILE' in app.config:
         raise RuntimeError('BDB_FILE was not set')
     if not 'bdb' in flask.g:
-        loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
+        app.logger.info('instantiating a new bdb')
         flask.g.bdb = bayeslite.bayesdb_open(pathname=app.config['BDB_FILE'], builtin_backends=False)
-        loom_backend = LoomBackend(loom_path)
-        bayeslite.bayesdb_register_backend(flask.g.bdb, loom_backend)
+        backend = get_backend_object()
+        bayeslite.bayesdb_register_backend(flask.g.bdb, backend)
     return flask.g.bdb
 
 def get_table_name():
