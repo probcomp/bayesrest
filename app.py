@@ -31,11 +31,10 @@ def get_backend_name():
         raise RuntimeError('BACKEND was not set in config file')
     return app.config['BACKEND']
 
-def get_backend_object():    
-    backend_config = get_backend_name()
-    if backend_config == 'cgpm':
+def get_backend_object(backend_name):
+    if backend_name == 'cgpm':
         return CGPM_Backend({}, multiprocess=False)
-    elif backend_config == 'loom':
+    elif backend_name == 'loom':
         loom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'loom_store')
         return LoomBackend(loom_path)
 
@@ -45,7 +44,8 @@ def get_bdb():
     if not 'bdb' in flask.g:
         app.logger.info('instantiating a new bdb')
         flask.g.bdb = bayeslite.bayesdb_open(pathname=app.config['BDB_FILE'], builtin_backends=False)
-        backend = get_backend_object()
+        backend_name = get_backend_name()
+        backend = get_backend_object(backend_name)
         bayeslite.bayesdb_register_backend(flask.g.bdb, backend)
     return flask.g.bdb
 
