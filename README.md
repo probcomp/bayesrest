@@ -41,12 +41,38 @@ Service is accessible at `https://bayesrest.probcomp.dev:8443`
 
 ## Endpoints
 
-`/heartbeat`
-+You can call the `/heartbeat` endpoint with a `GET` request to check if the API is operational.  It will responsd with a `200` status code if the API is up and running.
-+
-+`/table-data`
-+You can call the `/table-data` endpoint with a `GET` request to receive a JSON object with the data currently stored in the API.  The JSON object has two elements: `'data'` and `'columns'`, both of which are arrays.
-+
-+`/find-anomalies`
-+You can call the `/find-anomalies` endpoint with a `POST` request that sends an object with two keys: `'target-column'` and `'context-column'` -- the values associated with these keys must be the exact names of columns as they exist in your .bdb file.
+###`/heartbeat`
+You can call the `/heartbeat` endpoint with a `GET` request to check if the API is operational.  It will responsd with a `200` status code if the API is up and running.
 
+###`/table-data`
+You can call the `/table-data` endpoint with a `GET` request to receive a JSON object with the data currently stored in the API.
+
+The JSON object has two properties: `'data'` and `'columns'`.  The `'data'` element is an array of arrays, in which each inner array is row of data.  The `'columns'` element is an array of strings -- one for each column name.
+
+###`/find-anomalies`
+You can call the `/find-anomalies` endpoint with a `POST` request that sends an object with two keys:
+* `'target-column'` - this must be a string equal to one of the column names.
+* `'context-columns'` - this must be an array containing one or more strings, each of which being a column name.
+
+You will receive a status code back, indicating whether or not your query was successful.  If it is, you may subsequently hit the `/anomaly-scatterplot-data` endpoint.
+
+###`/anomaly-scatterplot-data`
+You can call the `/anomaly-scatterplot-data` endpoint with a `GET` request. You will receive a JSON object back.
+
+###`/find-peers`
+You can call the `/find-peers` endpoint with a `POST` request that sends an object with two keys:
+* `'target-column'` - this must be a string equal to one of the column names.
+* `'context-column'` - this must be a string equal to one of the column names.
+
+You will receieve a status code back, indicating whether or not your query was sucessful.  If it is, you may subsequently hit the `/peer-heatmap-data` endpoint.
+
+###`/peer-heatmap-data`
+You can call the `/peer-heatmap-data` endpoint with a `GET` request.  You will receive a JSON object back.
+
+
+###`/last-query`
+You can call the `/last-query` endpoint with a `GET` request.  You will receieve a JSON object back with the following properties:
+* `last_query`
+* `type`
+* `target_column`
+* `context_columns`
