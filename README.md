@@ -39,6 +39,19 @@ docker-compose up
 
 Service is accessible at `https://bayesrest.probcomp.dev:8443`
 
+## Queries you can run using the Bayesian Database Search API
+
+The Bayesian Database Search API can run three main queries at present:
+* Find Anomalies
+* Find Similar Rows
+* Find Dependent Columns
+
+### Find Anomalies
+
+### Find Similar Rows
+
+### Find Depndent Columns
+
 ## Endpoints
 
 ###`/heartbeat`
