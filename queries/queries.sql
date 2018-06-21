@@ -24,14 +24,15 @@ DROP TABLE IF EXISTS bayesrest_depprob
 {% sql 'create_dependence_probability_table' %}
 CREATE TABLE IF NOT EXISTS bayesrest_depprob
 AS ESTIMATE DEPENDENCE PROBABILITY
-FROM PAIRWISE VARIABLES OF bayesrest_population
+FROM PAIRWISE VARIABLES OF {{ population_name }}
 {% endsql %}
 
 {% sql 'select_dependence_probabilities' %}
-SELECT name1, value
+SELECT name1
 FROM bayesrest_depprob
 WHERE name0 = {{ column_name|guards.string }}
 ORDER BY value DESC
+LIMIT 10
 {% endsql %}
 
 {% sql 'infer_explicit_predict' %}

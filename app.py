@@ -145,6 +145,28 @@ def table_data():
     return jsonify({'columns': col_name_list,
                     'data': [r for r in cursor] })
 
+@app.route("/find-associated-columns", methods=['post'])
+@cross_origin(supports_credentials=True)
+def find_associated_columns():
+    table_name = get_table_name()
+    target_column = str(request.json['column'])
+    bdb = get_bdb()
+    with bdb.savepoint():
+        create_depprob_table_query = queries.create_dependence_probability_table(
+            population_name=get_population_name()
+        )
+        execute(bdb, create_depprob_table_query)
+        query = queries.select_dependence_probabilities(column_name=target_column)
+        result = execute(bdb, query)
+        order = [row[0] for row in result.fetchall()]
+
+    # target column always comes first
+    if target_column in order:
+        order.remove(target_column)
+    order.insert(0, target_column)
+
+    return jsonify(order)
+
 @app.route("/find-anomalies", methods=['post'])
 @cross_origin(supports_credentials=True)
 def find_anomalies():
