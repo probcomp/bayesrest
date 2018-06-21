@@ -46,11 +46,40 @@ The Bayesian Database Search API can run three main queries at present:
 * Find Similar Rows
 * Find Dependent Columns
 
+You might be asking yourself "when would I want to use these queries?"  To answer this question let's illustrate how each of these queries would work within the context of a fictitious dataset.  Lets say this dataset has 10,000 rows, each of which is a person, and four columns: person_id, age, max_running_speed, and favorite color.  Let's see what our queries could do with a datset like this.
+
 ### Find Anomalies
+
+Let's say that you'd like to find - of all 10,000 people - which person stands out the most in terms of their `max_running_speed`, or in other words is "anomalous" in terms of their running speed.  How would you do this?
+
+Well, one way you might go about this is to take the average max running speed of all people in your list and find the person who is furthest from this average on either end.  Make sense?  This probably isn't a revolutionary technique to you.
+
+But now let's say that we'd like to find a person stands out in terms of their running speed, given their age.  How might we figure this out?  Well, problems like these - referred to as a multivariate problem - can be difficult, especially as they increase in their complexity.  And this is where the "Find Anomalies" query of the Bayesian Database Search API can be helpful.  It lets you indicate which column you'd like to "search for anomalousness", and which column(s) you'd like to take into consideration as context (in this example, age), and - voila - suddenly you have a way of spotting the 100 year old marathon runner and 5 year old future track star.
 
 ### Find Similar Rows
 
-### Find Depndent Columns
+Now let's say there is a certain person in this list who is of interest to you for one reason or another, and you'd like to find more people like this.  To be specific in our example, let's say this person has the following characteristics:
+
+* `person_id`: 12931249
+* `age`: 14
+* `max_running_speed`: 13 (mph)
+* `favorite_color`: blue
+
+(And, for context, the world record running speed is 27.8 mph, set by Usain Bolt in the 100 meter sprint in August of 2009.)
+
+So, we have a fairly average (in terms of `max_running_speed`) `14` year old whose favorite color is `blue`, and we'd like to find more people like this.  Within the context of the constrained set of columns this might be pretty easy.  We could use filters in a spreadsheet to filter out people with these characteristics or construct a SQL query with `WHERE` statements that specify these exact characteristics.
+
+But now let's imagine we add 300 columns with additional information about each person.  Suddenly our techniques for finding people who are similar get a lot more burdensome.  This is a scenario where our "Find Similar Rows" query can be of help.  It lets you indicate which row is of particular interest to you, and it will send you back a ranking that indicates which rows are most similar to the row you indicated.
+
+### Find Dependent Columns
+
+Ok, now finally let's say that we want to find which columns the `max_running_speed` column appears to depend on the most.  Or, in other words, given the `max_running_speed` of all 10,000 people in our dataset, are there relationships between all of our columns?  For our simple example, we would see a strong relationship between a person's `age` and their `max_running_speed`: generally, we would expect people to get faster in life until somewhere around the age of 21, and then there is a decrease in their maximum running speed over time.  And, on the other hand, we would expect for there to relationship between a person's `favorite_color` and their `max_running_speed`.
+
+Again, in our simple example, one's "gut" might do a pretty good job of identifying these relationships, but as the size and complexity of our data grows, the ability of this API to do this becomes more and more valuable.
+
+### A Summary of the Value of this API
+
+This API is most helpful in analyzing large, messy, multivariate datasets with missing values.  In each of the examples laid out above, the API's ability to provide answers scales with increasing size, complexity, and messiness of our data, which would otherwise require trained data scientists hours of work.
 
 ## Endpoints
 
