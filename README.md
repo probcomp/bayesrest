@@ -1,30 +1,65 @@
-## bayesapi
+# Overview
 
-Some initial work towards a more formal API for the Bayes stack.
+## Initial Setup
 
-This uses OpenAPI to specify its API, to build documentation, and to validate request parameters. The API is specified in `api.yaml`.
+After cloning this repo, there are five steps to setup bayesrest:
+1. Setup nginx-proxy
+1. Add to /etc/hosts
+1. Create a `.bdb` file
+1. Create a config file
+1. Start the app
 
-### running
+### Setup probcomp/nginx-proxy repo
 
-Copy the example config file to `config.yaml`, and adjust according to your environment.
+Follow the instructions at https://github.com/probcomp/nginx-proxy -- nginx-proxy must be running before you can access bayesrest.
 
-`bayesapi` uses Docker to manage its environment. Start it with
+### Add /etc/hosts entry (if you don't already have one)
+
+    echo "127.0.0.1 bayesrest.probcomp.dev" | sudo tee -a /etc/hosts
+
+
+## Running
+
+### create a `.bdb` file
+BayesREST requires that you provide it a `.bdb` file for which analysis has already been performed. Rename that file `database.bdb` and place it at the project root.
+
+### Configuration
+
+BayesREST is configured via the `config.yaml` file. To get started, copy `config-example.yaml` and edit to reflect your local environment. The values you must configure are:
+
+- `bdb_file`: The filename of the `.bdb` file to issue queries against (which must be in the local directory)
+- `log_level`: The log level for the application. Valid options are `CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, and `NOTSET`.
+- `table_name`: The table containing the data under analysis.
+- `population_name`: The name of the population in your `.bdb` file
+
+In the `gunicorn` section, you can configure:
+
+- `bind`: The IP and address the server should bind to.
+- `workers`: The number of preforked worker processes
+- `timeout`: The number of seconds requests may take before returning an error. On slower machines, you may need to increase the default value of 30 seconds.
+- `reload`: A boolean- if set True, will cause gunicorn to watch source files and reload if the application changes (useful for development)
+
+### Start the app
 
     docker-compose up
 
-Point your favorite REST client to `http://localhost:5000/`:
+(Use the --build option if you've made docker changes.)
+
+Service is accessible at `https://bayesrest.probcomp.dev:8443` (though the TLS-terminating nginx proxy) and `http://localhost:5000` (directly)
+
+### Example request
 
     curl --request POST \
-     --url http://localhost:5000/find-peers \
-     --header 'content-type: application/json' \
-     --data '{
-	   "context-column": "operator_owner",
-	   "target-row": 10
-    }'
+      --url http://localhost:5000/find-peers \
+      --header 'content-type: application/json' \
+      --data '{
+        "context-column": "operator_owner",
+        "target-row": 10
+     }'
 
 ### development
 
-The docker container mounts and runs out of this directory, and the server is configured to watch for source file changes, so your changes will generally be immediately visibile in the running container.
+The docker container mounts and runs out of this directory, and by default the server is configured to watch for source file changes, so your changes will generally be immediately visibile in the running container.
 
 The container will crash on some bad syntax errors. Simply restart it in those instances.
 
