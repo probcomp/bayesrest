@@ -1,3 +1,4 @@
-flask
-flask-cors
-pyopenssl
+falcon
+gunicorn
+PyYAML
+jsonschema

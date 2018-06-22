@@ -1,0 +1,116 @@
+openapi: "3.0.0"
+info:
+  version: "0.0.1"
+  title: Bayes API
+  description: Programmatic interface to the MIT ProbComp stack.
+  license:
+    name: MIT
+servers:
+  - url: http://bayesapi.probcomp.dev
+    description: Local development server
+paths:
+  /find-peers:
+    post:
+      summary: Find similar rows to the row provided in the request, in the context of the given column.
+      operationId: findPeers
+      tags:
+        - peers
+      parameters:
+        - name: target-row
+          in: query
+          description: The ID of the base row for finding similar rows.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: context-column
+          in: query
+          required: true
+          description: The name of the column to be used as context for finding similarlity.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An list of rows and their degree of similarity, ordered starting from most similar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Similarities"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /find-anomalies:
+    post:
+      summary: Find anomalous rows in the database, given target and context columns.
+      operationId: findAnomalies
+      tags:
+        - anomalies
+      parameters:
+        - name: context-columns
+          in: query
+          required: true
+          description: The name of the column to be used as context for finding anomalies.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: target-column
+          in: query
+          required: true
+          description: The name of the column to be used as the target for finding anomalies.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An list of rows and their degree of anomalousness, ordered starting from most unlikely.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomalies"
+
+components:
+  schemas:
+    Anomalies:
+      description: An array of (row ID, value) pairs, where value is a measure of "anomalousness", ordered by descending value (so the first rows are more anomalous than the later rows).
+      type: array
+      items:
+        $ref: "#/components/schemas/Anomaly"
+    Similarities:
+      description: An array of (row ID, value) pairs, where value is a measure of similarity, ordered by descending value (so the first rows are more similar to the target row than later ones).
+      type: array
+      items:
+        $ref: "#/components/schemas/Similarity"
+    Anomaly:
+      description: An element in the list of anomalies. Describes how anomalous a single row is.
+      type: object
+      properties:
+        rowId:
+          type: integer
+          description: The ID of the row.
+        anomalyValue:
+          type: number
+          format: float
+          description: A unitless measure of the degree of anomalousness of the row.
+    Similarity:
+      description: An element in the list of similarities. Describes how similar a single row is.
+      type: object
+      properties:
+        rowId:
+          type: integer
+        similarityValue:
+          type: number
+          format: float
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

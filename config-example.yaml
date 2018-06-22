@@ -1,0 +1,11 @@
+---
+bdb_file: database.bdb
+table_name: satellites_full
+population_name: satellites_full_p
+log_level: DEBUG
+
+gunicorn:
+    bind: 0.0.0.0:5000
+    workers: 1
+    timeout: 30
+    reload: True
