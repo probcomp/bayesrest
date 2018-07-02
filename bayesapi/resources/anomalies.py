@@ -24,7 +24,7 @@ class AnomaliesResource(BaseResource):
             full_result = [row for row in cursor]
             client_result = [r for r in full_result]
 
-            history.save(self.cfg.history_file,
+            history.save(self.cfg.history,
                          {'type': 'anomalies',
                           'query': query,
                           'result': full_result,

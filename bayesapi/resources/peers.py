@@ -23,7 +23,7 @@ class PeersResource(BaseResource):
             cursor = self.execute(query)
             result = [[row[0], row[1]] for row in cursor]
 
-            history.save(self.cfg.history_file,
+            history.save(self.cfg.history,
                          {'type': 'peers',
                           'query': query,
                           'result': result,
