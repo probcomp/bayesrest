@@ -1,6 +1,7 @@
 table_name: satellites_full
 population_name: satellites_full_p
 log_level: DEBUG
+history_file: history.pickle
 
 gunicorn:
     bind: 0.0.0.0:5000

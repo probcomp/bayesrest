@@ -6,5 +6,6 @@ class AppConfig(YamlConfig):
         'table_name': Attr('table_name', str),
         'population_name': Attr('population_name', str),
         'log_level': Attr('log_level', str),
+        'history_file': Attr('history_file', str),
         'gunicorn': Attr('gunicorn', dict),
     }
