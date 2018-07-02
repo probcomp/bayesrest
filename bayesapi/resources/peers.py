@@ -1,4 +1,5 @@
 import falcon
+import history
 
 from bayesapi.resources import BaseResource
 from bayesapi.validation import validate
@@ -21,6 +22,13 @@ class PeersResource(BaseResource):
 
             cursor = self.execute(query)
             result = [[row[0], row[1]] for row in cursor]
+
+            history.save(self.cfg.history_file,
+                         {'type': 'peers',
+                          'query': query,
+                          'result': result,
+                          'target_row': target_row,
+                          'context_columns': [context_column]})
 
         resp.media = result
         resp.status = falcon.HTTP_200
