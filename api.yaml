@@ -11,8 +11,9 @@ servers:
 paths:
   /find-peers:
     post:
-      summary: Find similar rows to the row provided in the request, in the context of the given column.
+      summary: Find peer rows
       operationId: findPeers
+      description: Find similar rows to the row provided in the request, in the context of the given column.
       tags:
         - peers
       parameters:
@@ -31,7 +32,7 @@ paths:
             type: string
       responses:
         '200':
-          description: An list of rows and their degree of similarity, ordered starting from most similar.
+          description: A list of rows and their degree of similarity, ordered starting from most similar.
           content:
             application/json:
               schema:
@@ -42,10 +43,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
   /find-anomalies:
     post:
-      summary: Find anomalous rows in the database, given target and context columns.
+      summary: Find anomalous rows
+      description: Find anomalous rows in the database, given target and context columns.
       operationId: findAnomalies
       tags:
         - anomalies
@@ -72,6 +73,77 @@ paths:
               schema:
                 $ref: "#/components/schemas/Anomalies"
 
+  /last-query:
+    get:
+      summary: Last query
+      description: Return data about the last query run.
+      operationId: lastQuery
+      tags:
+        - explanation
+      responses:
+        '200':
+          description: Information about the previous query run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LastQuery"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /peer-heatmap-data:
+    get:
+      summary: Heatmap data
+      description: Data required to build a heatmap for the query explanation page.
+      tags:
+        - explanation
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeatMap"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /anomaly-scatterplot-data:
+    get:
+      summary: Scatterplot data
+      description: Data required for building an anomaly scatterplot
+      tags:
+        - explanation
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnomalyScatterplot"
+
+  /table-data:
+    get:
+      summary: Table data
+      description: The entirety of the table data
+      tags:
+        - table-data
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableData"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Anomalies:
@@ -79,11 +151,13 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Anomaly"
+
     Similarities:
       description: An array of (row ID, value) pairs, where value is a measure of similarity, ordered by descending value (so the first rows are more similar to the target row than later ones).
       type: array
       items:
         $ref: "#/components/schemas/Similarity"
+
     Anomaly:
       description: An element in the list of anomalies. Describes how anomalous a single row is.
       type: object
@@ -95,6 +169,7 @@ components:
           type: number
           format: float
           description: A unitless measure of the degree of anomalousness of the row.
+
     Similarity:
       description: An element in the list of similarities. Describes how similar a single row is.
       type: object
@@ -104,6 +179,74 @@ components:
         similarityValue:
           type: number
           format: float
+
+    LastQuery:
+      description: Information about the last query run by the system
+      type: object
+      properties:
+        last_query:
+          type: string
+          description: The BQL of the query itself
+        query_type:
+          type: string
+          description: THe type of the query (peer, anomamly)
+        target_column:
+          type: string
+        context_columns:
+          type: string
+
+    HeatMap:
+      type: object
+      properties:
+        top_100:
+          description: Heatmap data for the 100 most similar rows
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarityTriple"
+        bottom_100:
+          description: Heatmap data for the 100 least similar rows
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarityTriple"
+
+    # this wants to be a tuple, but OpenAPI wishes tuples out of
+    # existance, so we have this tortured array instead. OpenAPI
+    # probably wants us to return objects rather than tuples.
+    SimilarityTriple:
+      type: array
+      items:
+        oneOf:
+          - type: integer
+          - type: number
+      minItems: 3
+      maxItems: 3
+
+    AnomalyScatterplot:
+      description: An array of (row ID, value) pairs, where value is a measure of "anomalousness", ordered by descending value (so the first rows are more anomalous than the later rows).
+      type: array
+      items:
+        $ref: "#/components/schemas/Anomaly"
+
+    TableData:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TableDataRow"
+
+    TableDataRow:
+      type: array
+      items:
+        oneOf:
+          - type: integer
+          - type: number
+          - type: string
+
     Error:
       required:
         - code
