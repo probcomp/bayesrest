@@ -84,8 +84,6 @@ You can call the `/find-anomalies` endpoint with a `POST` request that sends an 
 * `'target-column'` - this must be a string equal to one of the column names.
 * `'context-columns'` - this must be an array containing one or more strings, each of which being a column name.
 
-You will receive a status code back, indicating whether or not your query was successful.  If it is, you may subsequently hit the `/anomaly-scatterplot-data` endpoint.
-
 ###### `/find-peers`
 You can call the `/find-peers` endpoint with a `POST` request that sends an object with two keys:
 * `'target-column'` - this must be a string equal to one of the column names.
