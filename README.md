@@ -90,5 +90,3 @@ You will receive a status code back, indicating whether or not your query was su
 You can call the `/find-peers` endpoint with a `POST` request that sends an object with two keys:
 * `'target-column'` - this must be a string equal to one of the column names.
 * `'context-column'` - this must be a string equal to one of the column names.
-
-You will receieve a status code back, indicating whether or not your query was sucessful.  If it is, you may subsequently hit the `/peer-heatmap-data` endpoint.
