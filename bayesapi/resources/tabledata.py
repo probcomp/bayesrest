@@ -2,6 +2,7 @@ import falcon
 from bayesapi.resources import BaseResource
 
 class TableDataResource(BaseResource):
+
     def on_get(self, req, resp):
         table_name = self.cfg.table_name
 

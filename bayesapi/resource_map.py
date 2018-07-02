@@ -11,5 +11,7 @@ resources = [
     { 'path': '/last-query',
       'resource_class': explanation.LastQueryResource },
     { 'path': '/table-data',
-      'resource_class': tabledata.TableDataResource }
+      'resource_class': tabledata.TableDataResource },
+    { 'path': '/peer-heatmap-data',
+      'resource_class': explanation.PeerHeatmapDataResource }
 ]
