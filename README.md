@@ -76,15 +76,3 @@ To rebuild docs, you'll need to install redoc-cli first:
 Then you can rebuild documentation with:
 
     make docs
-
-##### Endpoints
-
-###### `/find-anomalies`
-You can call the `/find-anomalies` endpoint with a `POST` request that sends an object with two keys:
-* `'target-column'` - this must be a string equal to one of the column names.
-* `'context-columns'` - this must be an array containing one or more strings, each of which being a column name.
-
-###### `/find-peers`
-You can call the `/find-peers` endpoint with a `POST` request that sends an object with two keys:
-* `'target-column'` - this must be a string equal to one of the column names.
-* `'context-column'` - this must be a string equal to one of the column names.
