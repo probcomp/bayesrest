@@ -75,4 +75,4 @@ To rebuild docs, you'll need to install redoc-cli first:
 
 Then you can rebuild documentation with:
 
-    redoc-cli bundle -o docs/index.html api.yaml
+    make docs
