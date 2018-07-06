@@ -1,3 +1,4 @@
+bdb_file: database.bdb
 table_name: satellites_full
 population_name: satellites_full_p
 log_level: DEBUG
