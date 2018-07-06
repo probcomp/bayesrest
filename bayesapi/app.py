@@ -6,8 +6,8 @@ import falcon
 from bayesapi.resource_map import resources
 
 class APIService(falcon.API):
-    def __init__(self, cfg, bdb, api_def):
-        super(APIService, self).__init__()
+    def __init__(self, cfg, bdb, api_def, **kwargs):
+        super(APIService, self).__init__(**kwargs)
 
         self.bdb = bdb
         self.cfg = cfg

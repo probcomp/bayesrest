@@ -2,3 +2,4 @@ falcon
 gunicorn
 PyYAML
 jsonschema
+falcon-cors
