@@ -12,11 +12,6 @@ services:
       nginx_probcomp:
         aliases:
           - bayesapi
-    environment:
-      CONFIG_FILE_PATH: 'config.yaml'
-      HTTPS_METHOD: 'noredirect'
-      VIRTUAL_HOST: 'bayesapi.probcomp.dev'
-      VIRTUAL_PORT: 5000
     volumes:
       - .:/app:cached
     ports:
