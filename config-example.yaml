@@ -1,6 +1,6 @@
 bdb_file: database.bdb
-table_name: satellites_full
-population_name: satellites_full_p
+table_name: counties
+population_name: counties
 log_level: DEBUG
 
 history:
