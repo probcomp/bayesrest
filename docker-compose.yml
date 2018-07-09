@@ -11,7 +11,11 @@ services:
       default:
       nginx_probcomp:
         aliases:
-          - bayesapi
+          - bayesrest
+    environment:
+      HTTPS_METHOD: 'noredirect'
+      VIRTUAL_HOST: 'bayesrest.probcomp.dev'
+      VIRTUAL_PORT: 5000
     volumes:
       - .:/app:cached
     ports:
