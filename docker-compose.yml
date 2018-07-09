@@ -13,7 +13,6 @@ services:
         aliases:
           - bayesrest
     environment:
-      BAYESREST_SETTINGS: 'application.cfg'
       HTTPS_METHOD: 'noredirect'
       VIRTUAL_HOST: 'bayesrest.probcomp.dev'
       VIRTUAL_PORT: 5000

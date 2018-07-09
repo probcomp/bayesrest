@@ -1,0 +1,335 @@
+openapi: "3.0.0"
+info:
+  version: "0.0.1"
+  title: Bayes API
+  description: |
+    Programmatic interface to the MIT ProbComp stack.
+
+    # Purpose
+
+    This API is most helpful in analyzing large, messy, multivariate datasets with missing values.  In each of the examples laid out above, the API's ability to provide answers scales with increasing size, complexity, and messiness of our data, which would otherwise require trained data scientists hours of work.
+
+    # Walkthrough
+
+    The Bayesian Database Search API can run three main queries at present:
+    * Find Anomalies
+    * Find Similar Rows
+    * Find Dependent Columns
+
+    You might be asking yourself "when would I want to use these queries?"  To answer this question let's illustrate how each of these queries would work within the context of a fictitious dataset.  Lets say this dataset has 10,000 rows, each of which is a person, and four columns: person_id, age, max_running_speed, and favorite color.  Let's see what our queries could do with a datset like this.
+
+    ## Finding anomalous rows
+
+    Let's say that you'd like to find - of all 10,000 people - which person stands out the most in terms of their `max_running_speed`, or in other words is "anomalous" in terms of their running speed.  How would you do this?
+
+    Well, one way you might go about this is to take the average max running speed of all people in your list and find the person who is furthest from this average on either end.  Make sense?  This probably isn't a revolutionary technique to you.
+
+    But now let's say that we'd like to find a person stands out in terms of their running speed, given their age.  How might we figure this out?  Well, problems like these - referred to as a multivariate problem - can be difficult, especially as they increase in their complexity.  And this is where the "Find Anomalies" query of the Bayesian Database Search API can be helpful.  It lets you indicate which column you'd like to "search for anomalousness", and which column(s) you'd like to take into consideration as context (in this example, age), and - voila - suddenly you have a way of spotting the 100 year old marathon runner and 5 year old future track star.
+
+    ## Finding similar rows
+
+    Now let's say there is a certain person in this list who is of interest to you for one reason or another, and you'd like to find more people like this.  To be specific in our example, let's say this person has the following characteristics:
+
+    * `person_id`: 12931249
+    * `age`: 14
+    * `max_running_speed`: 13 (mph)
+    * `favorite_color`: blue
+
+    (And, for context, the world record running speed is 27.8 mph, set by Usain Bolt in the 100 meter sprint in August of 2009.)
+
+    So, we have a fairly average (in terms of `max_running_speed`) `14` year old whose favorite color is `blue`, and we'd like to find more people like this.  Within the context of the constrained set of columns this might be pretty easy.  We could use filters in a spreadsheet to filter out people with these characteristics or construct a SQL query with `WHERE` statements that specify these exact characteristics.
+
+    But now let's imagine we add 300 columns with additional information about each person.  Suddenly our techniques for finding people who are similar get a lot more burdensome.  This is a scenario where our "Find Similar Rows" query can be of help.  It lets you indicate which row is of particular interest to you, and it will send you back a ranking that indicates which rows are most similar to the row you indicated.
+
+    ## Finding dependent columns
+
+    Ok, now finally let's say that we want to find which columns the `max_running_speed` column appears to depend on the most.  Or, in other words, given the `max_running_speed` of all 10,000 people in our dataset, are there relationships between all of our columns?  For our simple example, we would see a strong relationship between a person's `age` and their `max_running_speed`: generally, we would expect people to get faster in life until somewhere around the age of 21, and then there is a decrease in their maximum running speed over time.  And, on the other hand, we would expect for there to relationship between a person's `favorite_color` and their `max_running_speed`.
+
+    Again, in our simple example, one's "gut" might do a pretty good job of identifying these relationships, but as the size and complexity of our data grows, the ability of this API to do this becomes more and more valuable.
+
+    # Queries
+  license:
+    name: MIT
+servers:
+  - url: http://bayesapi.probcomp.dev
+    description: Local development server
+paths:
+  /find-associated-columns:
+    post:
+      summary: Find columns that have predictive relevance to a column.
+      operationId: findAssociatedColumns
+      parameters:
+        - name: column
+          in: query
+          description: The name of the column of for which you would like to find associated columns.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An list of columns in descending order of predictive relevance to the provided column.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Columns"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /find-peers:
+    post:
+      summary: Find peer rows
+      operationId: findPeers
+      description: Find similar rows to the row provided in the request, in the context of the given column.
+      tags:
+        - peers
+      parameters:
+        - name: target-row
+          in: query
+          description: The ID of the base row for finding similar rows.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: context-column
+          in: query
+          required: true
+          description: The name of the column to be used as context for finding similarlity.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of rows and their degree of similarity, ordered starting from most similar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Similarities"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /find-anomalies:
+    post:
+      summary: Find anomalous rows
+      description: Find rows that have an anomalous value for a column given the values in a set of other columns.
+      operationId: findAnomalies
+      parameters:
+        - name: context-columns
+          in: query
+          required: true
+          description: The name of the column to be used as context for finding anomalies.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: target-column
+          in: query
+          required: true
+          description: The name of the column to be used as the target for finding anomalies.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An list of rows and their degree of anomalousness, ordered starting from most unlikely.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomalies"
+
+  /last-query:
+    get:
+      summary: Last query
+      description: Return data about the last query run.
+      operationId: lastQuery
+      tags:
+        - explanation
+      responses:
+        '200':
+          description: Information about the previous query run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LastQuery"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /peer-heatmap-data:
+    get:
+      summary: Heatmap data
+      description: Data required to build a heatmap for the query explanation page.
+      tags:
+        - explanation
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeatMap"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /anomaly-scatterplot-data:
+    get:
+      summary: Scatterplot data
+      description: Data required for building an anomaly scatterplot
+      tags:
+        - explanation
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnomalyScatterplot"
+
+  /table-data:
+    get:
+      summary: Table data
+      description: The entirety of the table data
+      tags:
+        - table-data
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableData"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Columns:
+      description: >
+        An array of column names.
+      type: array
+      items:
+        $ref: "#/components/schemas/Column"
+    Column:
+      description: The name of a column.
+      type: string
+    Anomalies:
+      description: An array of (row ID, value) pairs, where value is a measure of "anomalousness", ordered by descending value (so the first rows are more anomalous than the later rows).
+      type: array
+      items:
+        $ref: "#/components/schemas/Anomaly"
+
+    Similarities:
+      description: An array of (row ID, value) pairs, where value is a measure of similarity, ordered by descending value (so the first rows are more similar to the target row than later ones).
+      type: array
+      items:
+        $ref: "#/components/schemas/Similarity"
+
+    Anomaly:
+      description: An element in the list of anomalies. Describes how anomalous a single row is.
+      type: object
+      properties:
+        rowId:
+          type: integer
+          description: The ID of the row.
+        anomalyValue:
+          type: number
+          format: float
+          description: A unitless measure of the degree of anomalousness of the row.
+
+    Similarity:
+      description: An element in the list of similarities. Describes how similar a single row is.
+      type: object
+      properties:
+        rowId:
+          type: integer
+        similarityValue:
+          type: number
+          format: float
+
+    LastQuery:
+      description: Information about the last query run by the system
+      type: object
+      properties:
+        last_query:
+          type: string
+          description: The BQL of the query itself
+        query_type:
+          type: string
+          description: THe type of the query (peer, anomamly)
+        target_column:
+          type: string
+        context_columns:
+          type: string
+
+    HeatMap:
+      type: object
+      properties:
+        top_100:
+          description: Heatmap data for the 100 most similar rows
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarityTriple"
+        bottom_100:
+          description: Heatmap data for the 100 least similar rows
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarityTriple"
+
+    # this wants to be a tuple, but OpenAPI wishes tuples out of
+    # existance, so we have this tortured array instead. OpenAPI
+    # probably wants us to return objects rather than tuples.
+    SimilarityTriple:
+      type: array
+      items:
+        oneOf:
+          - type: integer
+          - type: number
+      minItems: 3
+      maxItems: 3
+
+    AnomalyScatterplot:
+      description: An array of (row ID, value) pairs, where value is a measure of "anomalousness", ordered by descending value (so the first rows are more anomalous than the later rows).
+      type: array
+      items:
+        $ref: "#/components/schemas/Anomaly"
+
+    TableData:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TableDataRow"
+
+    TableDataRow:
+      type: array
+      items:
+        oneOf:
+          - type: integer
+          - type: number
+          - type: string
+
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
