@@ -27,7 +27,9 @@ class GunicornApp(BaseApplication):
         # https://github.com/benoitc/gunicorn/issues/1562
         from bayesapi.app import APIService
         from falcon_cors import CORS
-        cors = CORS(allow_all_origins=True, allow_all_headers=True,
+        cors = CORS(allow_origins_list=["https://bayessheets.probcomp.dev:8443"],
+                    allow_credentials_all_origins=True,
+                    allow_all_headers=True,
                     allow_headers_list=["Content-Type"], allow_all_methods=True)
 
         self.application = APIService(self.app_cfg, self.bdb,
