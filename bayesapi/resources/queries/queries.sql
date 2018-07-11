@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS bayesrest_depprob
 {% sql 'create_dependence_probability_table' %}
 CREATE TABLE IF NOT EXISTS bayesrest_depprob
 AS ESTIMATE DEPENDENCE PROBABILITY
-FROM PAIRWISE VARIABLES OF bayesrest_population
+FROM PAIRWISE VARIABLES OF {{ population|default('bayesrest_population') }}
 {% endsql %}
 
 {% sql 'select_dependence_probabilities' %}
