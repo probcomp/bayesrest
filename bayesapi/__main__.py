@@ -1,6 +1,7 @@
 import aumbry
 from gunicorn.app.base import BaseApplication
 import logging
+import os
 import yaml
 
 from bayesapi.config import AppConfig

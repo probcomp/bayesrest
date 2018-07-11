@@ -6,7 +6,7 @@ WORKDIR /app
 ADD requirements.txt /app/
 
 RUN conda install -n python2 --quiet --yes --file requirements.txt
-RUN $CONDA_DIR/envs/python2/bin/pip install aumbry falcon-cors snaql
+RUN $CONDA_DIR/envs/python2/bin/pip install aumbry falcon-cors snaql alchemize
 
 ADD . /app
 ADD docker-entrypoint.sh /usr/local/bin/
