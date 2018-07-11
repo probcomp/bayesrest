@@ -18,7 +18,7 @@ class AssociatedColumnsResource(BaseResource):
 
             self.execute(create_depprob_table_query)
 
-            query = self.queries.select_dependence_probabilities(column_name=target_column)
+            query = self.queries.select_dependence_probabilities(column_name=target_column.lower())
             result = self.execute(query)
 
             order = [row[0] for row in result.fetchall()]
