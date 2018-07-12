@@ -62,13 +62,7 @@ def main():
 
     logging.basicConfig()
 
-    cfg = aumbry.load(
-        aumbry.FILE,
-        AppConfig,
-        {
-            'CONFIG_FILE_PATH': './config.yaml'
-        }
-    )
+    cfg = aumbry.load(aumbry.FILE, AppConfig)
 
     logging.getLogger(__name__).level = parse_log_level(cfg.log_level)
     logger = logging.getLogger(__name__)

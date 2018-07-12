@@ -25,7 +25,7 @@ BayesREST requires that you provide it a `.bdb` file for which analysis has alre
 
 ### Configuration
 
-BayesREST is configured via the `config.yaml` file. To get started, copy `config-example.yaml` and edit to reflect your local environment. The values you must configure are:
+BayesREST is configured via a `.yaml` file. To get started, copy `config-example.yaml` and edit to reflect your local environment, then write the path to that file into `docker-compose.yml`. The values you must configure are:
 
 - `bdb_file`: The filename of the `.bdb` file to issue queries against (which must be in the local directory)
 - `log_level`: The log level for the application. Valid options are `CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, and `NOTSET`.
@@ -41,7 +41,7 @@ In the `gunicorn` section, you can configure:
 
 ### Start the app
 
-    docker-compose up
+    CONFIG_FILE_PATH=/path/to/config.yaml docker-compose up
 
 (Use the --build option if you've made docker changes.)
 
