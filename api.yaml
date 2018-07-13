@@ -101,7 +101,7 @@ paths:
             type: string
       responses:
         '200':
-          description: A list of dictionaries containing the row ID and its degree of similarity, ordered starting from most similar.
+          description: A list of dictionaries containing a row ID and the row's degree of similarity, ordered starting from most similar.
           content:
             application/json:
               schema:
@@ -265,7 +265,7 @@ components:
           description: The BQL of the query itself
         query_type:
           type: string
-          description: THe type of the query (peer, anomamly)
+          description: The type of the query (peer, anomamly)
         target_column:
           type: string
         context_columns:
