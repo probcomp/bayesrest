@@ -21,7 +21,13 @@ class AnomaliesResource(BaseResource):
             )
 
             cursor = self.execute(query)
-            full_result = [row for row in cursor]
+
+            full_result = []
+            for row_id, val in cursor:
+                if val is None:
+                    val = 0
+                full_result.append(val)
+
             client_result = [r for r in full_result]
 
             history.save(self.cfg.history,
