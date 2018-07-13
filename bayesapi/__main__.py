@@ -11,12 +11,14 @@ from bayeslite.backends.cgpm_backend import CGPM_Backend
 
 class GunicornApp(BaseApplication):
 
-    def __init__(self, cfg, bdb, api_def):
+    def __init__(self, cfg, bdb, api_def, logger):
         self.options = cfg.gunicorn or {}
+        super(GunicornApp, self).__init__()
+
         self.app_cfg = cfg
         self.bdb = bdb
         self.api_def = api_def
-        super(GunicornApp, self).__init__()
+        self.logger = logger
 
     def load_config(self):
         for key, value in self.options.items():
@@ -34,7 +36,8 @@ class GunicornApp(BaseApplication):
                     allow_headers_list=["Content-Type"], allow_all_methods=True)
 
         self.application = APIService(self.app_cfg, self.bdb,
-                                      self.api_def, middleware=[cors.middleware])
+                                      self.api_def, self.logger,
+                                      middleware=[cors.middleware])
         return self.application
 
 def get_bdb(cfg, logger):
@@ -77,7 +80,7 @@ def main():
 
     api_def = read_api('api.yaml')
 
-    gunicorn_app = GunicornApp(cfg, bdb, api_def)
+    gunicorn_app = GunicornApp(cfg, bdb, api_def, logger)
 
     gunicorn_app.run()
 

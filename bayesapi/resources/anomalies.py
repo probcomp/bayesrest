@@ -20,6 +20,8 @@ class AnomaliesResource(BaseResource):
                 context_columns=context_columns
             )
 
+            self.logger.info(query)
+
             cursor = self.execute(query)
             full_result = [row for row in cursor]
             client_result = [r for r in full_result]
