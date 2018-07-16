@@ -8,6 +8,7 @@ from bayesapi.config import AppConfig
 
 import bayeslite
 from bayeslite.backends.cgpm_backend import CGPM_Backend
+from bayeslite.backends.loom_backend import LoomBackend
 
 class GunicornApp(BaseApplication):
 
@@ -37,12 +38,22 @@ class GunicornApp(BaseApplication):
                                       self.api_def, middleware=[cors.middleware])
         return self.application
 
+
+def get_backend_object(cfg):
+    if cfg.backend is None:
+        raise RuntimeError('BACKEND was not set in config file')
+
+    if cfg.backend == 'cgpm':
+        return CGPM_Backend({}, multiprocess=False)
+    elif cfg.backend == 'loom':
+        return LoomBackend(cfg.loom_path)
+
 def get_bdb(cfg, logger):
+    logger.info(cfg.bdb_file)
 
     bdb = bayeslite.bayesdb_open(pathname=cfg.bdb_file, builtin_backends=False)
-    cgpm_backend = CGPM_Backend({}, multiprocess=False)
-    bayeslite.bayesdb_register_backend(bdb, cgpm_backend)
-    logger.info(cfg.bdb_file)
+
+    bayeslite.bayesdb_register_backend(bdb, get_backend_object(cfg))
 
     return bdb
 
