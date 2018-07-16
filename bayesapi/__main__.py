@@ -49,11 +49,21 @@ def get_backend_object(cfg):
         return LoomBackend(cfg.loom_path)
 
 def get_bdb(cfg, logger):
-    logger.info(cfg.bdb_file)
+    logger.info("Using bdb file: {}".format(cfg.bdb_file))
 
-    bdb = bayeslite.bayesdb_open(pathname=cfg.bdb_file, builtin_backends=False)
-
+    bdb = bayeslite.bayesdb_open(pathname=cfg.bdb_file)
     bayeslite.bayesdb_register_backend(bdb, get_backend_object(cfg))
+
+    if cfg.backend == 'loom':
+        # These are hacks that are necessary because bayeslite currently
+        # assumes that `.bdb` file creation and querying will happen in the
+        # same Python process.
+        logger.info('Backend is set to {}. Manually setting loom_store_path to {}'.format(cfg.backend, cfg.loom_path))
+        bdb.sql_execute('UPDATE bayesdb_loom_generator SET loom_store_path = ?', (cfg.loom_path,))
+        logger.info('Backend is set to {}. Analyzing for 1 iterations.'.format(cfg.backend))
+        bdb.execute('ANALYZE data FOR 1 ITERATIONS;')
+
+    logger.info("Backend registered")
 
     return bdb
 
@@ -70,13 +80,14 @@ def read_api(fn):
     return api_def
 
 def main():
-
     logging.basicConfig()
 
     cfg = aumbry.load(aumbry.FILE, AppConfig)
 
     logging.getLogger(__name__).level = parse_log_level(cfg.log_level)
     logger = logging.getLogger(__name__)
+
+    logger.info('Using bayeslite version: {}'.format(bayeslite.__version__))
 
     bdb = get_bdb(cfg, logger)
 
