@@ -105,7 +105,6 @@ ENV/
 
 # mypy
 .mypy_cache/
-*.bdb
 /*.crt
 /*.key
 .pytest_cache

@@ -23,14 +23,26 @@ Follow the instructions at https://github.com/probcomp/nginx-proxy -- nginx-prox
 ### create a `.bdb` file
 BayesREST requires that you provide it a `.bdb` file for which analysis has already been performed. Rename that file `database.bdb` and place it at the project root.
 
+### Start the app
+
+    make up
+
+(Use the --build option if you've made docker changes.)
+
+Service is accessible at `https://bayesrest.probcomp.dev:8443` (though the TLS-terminating nginx proxy) and `http://localhost:5000` (directly)
+
 ### Configuration
 
-BayesREST is configured via a `.yaml` file. To get started, copy `config-example.yaml` and edit to reflect your local environment, then write the path to that file into `docker-compose.yml`. The values you must configure are:
+BayesREST should work out-of-the-box without further configuration, using example "counties" data and the loom backend. If you'd like to use other data or backends, read on.
 
-- `bdb_file`: The filename of the `.bdb` file to issue queries against (which must be in the local directory)
-- `log_level`: The log level for the application. Valid options are `CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, and `NOTSET`.
-- `table_name`: The table containing the data under analysis.
-- `population_name`: The name of the population in your `.bdb` file
+BayesREST is configured via a `.yaml` file, with some settings able to be overwritten with environment variables. If you're running in a docker context, you should edit the existing `docker-compose.yml` file to change environment variables as needed. Otherwise, copy `config-example.yaml` to `config.yaml`, and make changes there. The values you may configure (and their environment variable equivalent) are:
+
+- `bdb_file` / `BDB_FILE`: The filename of the `.bdb` file to issue queries against (which must be in the local directory)
+- `log_level` / `LOG_LEVEL`: The log level for the application. Valid options are `CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, and `NOTSET`.
+- `table_name` / `TABLE_NAME`: The table containing the data under analysis.
+- `population_name` / `POPULATION_NAME`: The name of the population in your `.bdb` file
+- `backend` / `BACKEND`: Choose either `loom` or `cgpm`
+- `loom_path` / `LOOM_PATH`: The path to loom-specific data.
 
 In the `gunicorn` section, you can configure:
 
@@ -39,13 +51,7 @@ In the `gunicorn` section, you can configure:
 - `timeout`: The number of seconds requests may take before returning an error. On slower machines, you may need to increase the default value of 30 seconds.
 - `reload`: A boolean- if set True, will cause gunicorn to watch source files and reload if the application changes (useful for development)
 
-### Start the app
-
-    CONFIG_FILE_PATH=/path/to/config.yaml docker-compose up
-
-(Use the --build option if you've made docker changes.)
-
-Service is accessible at `https://bayesrest.probcomp.dev:8443` (though the TLS-terminating nginx proxy) and `http://localhost:5000` (directly)
+After changing configuration, `make up` will start your app in a docker container.
 
 ### Example request
 

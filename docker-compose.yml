@@ -13,11 +13,19 @@ services:
         aliases:
           - bayesrest
     environment:
+      NB_UID: ${NB_UID}
       HTTPS_METHOD: 'noredirect'
       VIRTUAL_HOST: 'bayesrest.probcomp.dev'
       VIRTUAL_PORT: 5000
-      CONFIG_FILE_PATH: '/path/to/config.yaml'
+      PYTHONPATH: '/app'
+      CONFIG_FILE_PATH: '/app/config-example.yaml'
+      BDB_FILE: '/app/bdb/counties_v6.bdb'
+      TABLE_NAME: 'data'
+      POPULATION_NAME: 'data'
+      BACKEND: 'loom'
+      LOOM_PATH: '/app/loom/'
     volumes:
       - .:/app:cached
+      - ./loom/loom-model-files-counties-v6:/app/loom
     ports:
       - "5000:5000"
