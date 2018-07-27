@@ -1,7 +1,9 @@
 bdb_file: database.bdb
+loom_path: /replace/with/absolute/path
 table_name: counties
 population_name: counties
 log_level: DEBUG
+backend: cgpm
 
 history:
     file: history.pickle

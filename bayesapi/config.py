@@ -24,8 +24,10 @@ class AppConfig(EnvYamlConfig):
 
     __mapping__ = {
         'bdb_file': Attr('bdb_file', str),
+        'loom_path': Attr('loom_path', str),
         'table_name': Attr('table_name', str),
         'population_name': Attr('population_name', str),
+        'backend': Attr('backend', str),
         'log_level': Attr('log_level', str),
         'history': Attr('history', dict),
         'gunicorn': Attr('gunicorn', dict),

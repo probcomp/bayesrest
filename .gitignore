@@ -1,5 +1,4 @@
 # custom
-config.yaml
 *.pickle
 
 # Byte-compiled / optimized / DLL files
