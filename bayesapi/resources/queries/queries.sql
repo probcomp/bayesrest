@@ -34,13 +34,6 @@ WHERE name0 = {{ column_name|guards.string }}
 ORDER BY value DESC
 {% endsql %}
 
-{% sql 'infer_explicit_predict' %}
-INFER EXPLICIT PREDICT {{ column_name|guards.string }}
-USING ? SAMPLES
-FROM {{ table_name|guards.string }}
-WHERE {{ table_name|guards.string }}.rowid = ?
-{% endsql %}
-
 {% sql 'find_anomalies' %}
 ESTIMATE
 _rowid_,
