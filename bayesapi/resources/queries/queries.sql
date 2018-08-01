@@ -53,14 +53,6 @@ FROM {{ population|default('bayesrest_population') }}
 ORDER BY pred_prob
 {% endsql %}
 
-{% sql 'cond_anomalies_context', cond_for='find_anomalies' %}
-{% if context_columns %}
-  {% for context_column in context_columns %}
-    {{ context_column|guards.string }}
-  {% endfor %}
-{% endif %}
-{% endsql %}
-
 {% sql 'find_peer_rows' %}
 ESTIMATE _rowid_, SIMILARITY TO ("rowid" == {{ target_row|guards.integer }})
 IN THE CONTEXT OF {{ context_column }} AS sim
