@@ -23,7 +23,8 @@ class PeersResource(BaseResource):
             )
 
             cursor = self.execute(query)
-            result = [[row[0], row[1]] for row in cursor]
+            cols = ['row_id','similarity']
+            result = [dict(zip(cols, row)) for row in cursor]
 
             history.save(self.cfg.history,
                          {'type': 'peers',

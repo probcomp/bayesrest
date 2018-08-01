@@ -22,16 +22,18 @@ class AnomaliesResource(BaseResource):
                 context_columns = quoted_ctx_columns
             )
 
+            self.logger.info(query)
+
             cursor = self.execute(query)
-            full_result = [row for row in cursor]
-            client_result = [r for r in full_result]
+            cols = ['row_id','probability']
+            result = [dict(zip(cols, row)) for row in cursor]
 
             history.save(self.cfg.history,
                          {'type': 'anomalies',
                           'query': query,
-                          'result': full_result,
+                          'result': result,
                           'target_column': target_column,
                           'context_columns': context_columns})
 
-        resp.media = client_result
+        resp.media = result
         resp.status = falcon.HTTP_200
