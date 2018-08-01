@@ -12,12 +12,13 @@ class AnomaliesResource(BaseResource):
         target_column = req_vars['target-column']
         context_columns = req_vars['context-columns']
 
+        quoted_tgt_column = '"' + target_column + '"'
         quoted_ctx_columns = ['"{}"'.format(c) for c in context_columns]
 
         with self.bdb.savepoint():
             query = self.queries.find_anomalies(
                 population = self.cfg.population_name,
-                target_column=target_column,
+                target_column=quoted_tgt_column,
                 context_columns=quoted_ctx_columns
             )
 
