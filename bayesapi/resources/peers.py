@@ -13,10 +13,12 @@ class PeersResource(BaseResource):
         target_row = req_vars['target-row']
         context_column = req_vars['context-column']
 
+        quoted_ctx_column = '"{}"'.format(context_column)
+
         with self.bdb.savepoint():
             query = self.queries.find_peer_rows(
                 population = self.cfg.population_name,
-                context_column = context_column,
+                context_column = quoted_ctx_column,
                 target_row = target_row
             )
 
