@@ -6,8 +6,10 @@ class TableDataResource(BaseResource):
     def on_get(self, req, resp):
         table_name = self.cfg.table_name
 
+        quoted_table_name = '"{}"'.format(table_name)
+
         query = self.queries.get_full_table(
-            table_name=table_name
+            table_name = quoted_table_name
         )
 
         cursor = self.execute(query)
