@@ -222,8 +222,9 @@ components:
     Column:
       description: The name of a column.
       type: string
+
     Anomalies:
-      description: An array of (row ID, value) pairs, where value is a measure of "anomalousness", ordered by descending value (so the first rows are more anomalous than the later rows).
+      description: An array of dictionaries which include the row ID and a measure of "anomalousness", ordered by descending value (so the first rows are more anomalous than the later rows).
       type: array
       items:
         $ref: "#/components/schemas/Anomaly"
@@ -238,7 +239,7 @@ components:
       description: An element in the list of anomalies. Describes how anomalous a single row is.
       type: object
       properties:
-        rowId:
+        row-id:
           type: integer
           description: The ID of the row.
         anomalyValue:
@@ -250,7 +251,7 @@ components:
       description: An element in the list of similarities. Describes how similar a single row is.
       type: object
       properties:
-        row_id:
+        row-id:
           type: integer
         similarity:
           type: number

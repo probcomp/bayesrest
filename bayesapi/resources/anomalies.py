@@ -25,7 +25,7 @@ class AnomaliesResource(BaseResource):
             self.logger.info(query)
 
             cursor = self.execute(query)
-            cols = ['row_id','probability']
+            cols = ['row-id','probability']
             result = [dict(zip(cols, row)) for row in cursor]
 
             history.save(self.cfg.history,

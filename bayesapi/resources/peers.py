@@ -23,7 +23,7 @@ class PeersResource(BaseResource):
             )
 
             cursor = self.execute(query)
-            cols = ['row_id','similarity']
+            cols = ['row-id','similarity']
             result = [dict(zip(cols, row)) for row in cursor]
 
             history.save(self.cfg.history,
