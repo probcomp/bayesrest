@@ -1,9 +1,10 @@
 # Overview
 
-After cloning this repo, there are five steps to setup bayesrest:
+After cloning this repo, there are six steps to setup bayesrest:
 1. Setup nginx-proxy
 1. Add to /etc/hosts
 1. Create a `.bdb` file
+1. Unpack `loom` libraries
 1. Configuration
 1. Start the app
 
@@ -16,11 +17,18 @@ Follow the instructions at https://github.com/probcomp/nginx-proxy -- nginx-prox
     echo "127.0.0.1 bayesrest.probcomp.dev" | sudo tee -a /etc/hosts
 
 ### 3. Create a `.bdb` file
+
 BayesREST requires that you provide it a `.bdb` file for which analysis has already been performed. Rename that file `database.bdb` and place it at the project root.
 
-### 4. Configuration
+### 4. Unpack `loom` libraries
 
-BayesREST is configured via a `.yaml` file. To get started, copy `config-example.yaml` and edit to reflect your local environment, ***then write the path to that file into `docker-compose.yml`.*** The values you must configure are:
+If you are using the `loom` backend, you will need to get a `.tar` file of the loom library files and unpack it in the repo's root directory.
+
+### 5. Configuration
+
+BayesREST is configured via a `.yaml` file. To get started, create a new `config.yaml` file, copy the contents of `config-example.yaml` into it, and edit to reflect your local environment, ***then write the path to that file into `docker-compose.yml`.***
+
+The values you must configure in `config.yaml` are:
 
 - `bdb_file`: The filename of the `.bdb` file to issue queries against (which must be in the local directory)
 - `loom_path`: The absolute path to your loom directory _within your running docker image_
@@ -35,7 +43,7 @@ In the `gunicorn` section, you can configure:
 - `timeout`: The number of seconds requests may take before returning an error. On slower machines, you may need to increase the default value of 30 seconds.
 - `reload`: A boolean- if set True, will cause gunicorn to watch source files and reload if the application changes (useful for development)
 
-### 5. Start the app
+### 6. Start the app
 
     CONFIG_FILE_PATH=/path/to/config.yaml docker-compose up
 
