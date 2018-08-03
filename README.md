@@ -4,7 +4,7 @@ After cloning this repo, there are six steps to setup bayesrest:
 1. Setup nginx-proxy
 1. Add to /etc/hosts
 1. Create a `.bdb` file
-1. Unpack `loom` libraries
+1. If you're using the loom backend, add loom libraries
 1. Configuration
 1. Start the app
 
@@ -20,9 +20,9 @@ Follow the instructions at https://github.com/probcomp/nginx-proxy -- nginx-prox
 
 BayesREST requires that you provide it a `.bdb` file for which analysis has already been performed. Rename that file `database.bdb` and place it at the project root.
 
-### 4. Unpack `loom` libraries
+### 4. If you're using the loom backend, add loom libraries
 
-If you are using the `loom` backend, you will need to get a `.tar` file of the loom library files and unpack it in the repo's root directory.
+If you are using the `loom` backend, you will need to add loom libraries to your repo.  This has somtimes been done by unpacking a `.tar` file of the loom library files into the repo's root directory.
 
 ### 5. Configuration
 
