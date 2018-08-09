@@ -50,10 +50,10 @@ class PeerHeatmapDataResource(BaseResource):
         context_column = last_data['context_columns'][0] # only one supported for now
 
         top_results = last_data['result'][:100]
-        top_row_ids = ",".join([str(row [0]) for row in top_results])
+        top_row_ids = ",".join([str(row ['row-id']) for row in top_results])
 
         bottom_results = last_data['result'][-100:]
-        bottom_row_ids = ",".join([str(row [0]) for row in bottom_results])
+        bottom_row_ids = ",".join([str(row ['row-id']) for row in bottom_results])
 
         res = [self.pairwise_similarity_of_rows(table_name,
                                                 context_column, top_row_ids),
