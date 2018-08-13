@@ -13,7 +13,13 @@ class TableDataResource(BaseResource):
         )
 
         cursor = self.execute(query)
-        col_name_list = [tuple[0] for tuple in cursor.description]
+
+        def fix_row_id(c):
+            if c == 'rowid':
+                return 'row-id'
+            return c
+
+        col_name_list = [fix_row_id(tuple[0]) for tuple in cursor.description]
         res = { 'columns': col_name_list,
                 'data': [r for r in cursor] }
 
