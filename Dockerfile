@@ -10,6 +10,8 @@ ADD requirements.txt /app/
 RUN conda install -n python2 --quiet --yes --file requirements.txt
 RUN $CONDA_DIR/envs/python2/bin/pip install aumbry falcon-cors snaql alchemize
 
+RUN npm install -g redoc-cli
+
 ADD . /app
 RUN fix-permissions /app
 
