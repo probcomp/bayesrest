@@ -6,7 +6,8 @@ import falcon
 from bayesapi.resource_map import resources
 
 class APIService(falcon.API):
-    def __init__(self, cfg, bdb, api_def, **kwargs):
+    def __init__(self, cfg, bdb, api_def, logger, **kwargs):
+        self.logger = logger
         super(APIService, self).__init__(**kwargs)
 
         self.bdb = bdb
@@ -16,7 +17,7 @@ class APIService(falcon.API):
             res = r['resource_class']
             path = r['path']
             api = api_def['paths'][path]
-            instance = res(cfg, self.bdb, api)
+            instance = res(cfg, self.bdb, api, logger)
             self.add_route(r['path'], instance)
 
     def start(self):

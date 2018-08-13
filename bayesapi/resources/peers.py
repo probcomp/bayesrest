@@ -13,15 +13,18 @@ class PeersResource(BaseResource):
         target_row = req_vars['target-row']
         context_column = req_vars['context-column']
 
+        quoted_ctx_column = '"{}"'.format(context_column)
+
         with self.bdb.savepoint():
             query = self.queries.find_peer_rows(
                 population = self.cfg.population_name,
-                context_column = context_column,
+                context_column = quoted_ctx_column,
                 target_row = target_row
             )
 
             cursor = self.execute(query)
-            result = [[row[0], row[1]] for row in cursor]
+            cols = ['row-id','similarity']
+            result = [dict(zip(cols, row)) for row in cursor]
 
             history.save(self.cfg.history,
                          {'type': 'peers',

@@ -30,15 +30,17 @@ class PeerHeatmapDataResource(BaseResource):
 
     def pairwise_similarity_of_rows(self, table_name, context_column, row_ids):
 
+        quoted_ctx_column = '"{}"'.format(context_column)
+
         with self.bdb.savepoint():
             query = self.queries.pairwise_similarity(
                 population = self.cfg.population_name,
-                context_column = context_column,
+                context_column = quoted_ctx_column,
                 row_set = row_ids
             )
 
             cursor = self.execute(query)
-            result = [[row[0], row[1], row[2]] for row in cursor]
+            result = [{'rowid-1': row[0], 'rowid-2': row[1], 'similarity': row[2]} for row in cursor]
 
         return result
 
@@ -48,10 +50,10 @@ class PeerHeatmapDataResource(BaseResource):
         context_column = last_data['context_columns'][0] # only one supported for now
 
         top_results = last_data['result'][:100]
-        top_row_ids = ",".join([str(row [0]) for row in top_results])
+        top_row_ids = ",".join([str(row['row-id']) for row in top_results])
 
         bottom_results = last_data['result'][-100:]
-        bottom_row_ids = ",".join([str(row [0]) for row in bottom_results])
+        bottom_row_ids = ",".join([str(row['row-id']) for row in bottom_results])
 
         res = [self.pairwise_similarity_of_rows(table_name,
                                                 context_column, top_row_ids),

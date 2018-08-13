@@ -34,13 +34,6 @@ WHERE name0 = {{ column_name|guards.string }}
 ORDER BY value DESC
 {% endsql %}
 
-{% sql 'infer_explicit_predict' %}
-INFER EXPLICIT PREDICT {{ column_name|guards.string }}
-USING ? SAMPLES
-FROM {{ table_name|guards.string }}
-WHERE {{ table_name|guards.string }}.rowid = ?
-{% endsql %}
-
 {% sql 'find_anomalies' %}
 ESTIMATE
 _rowid_,
@@ -51,14 +44,6 @@ PREDICTIVE PROBABILITY OF {{ target_column }}
 AS pred_prob
 FROM {{ population|default('bayesrest_population') }}
 ORDER BY pred_prob
-{% endsql %}
-
-{% sql 'cond_anomalies_context', cond_for='find_anomalies' %}
-{% if context_columns %}
-  {% for context_column in context_columns %}
-    {{ context_column|guards.string }}
-  {% endfor %}
-{% endif %}
 {% endsql %}
 
 {% sql 'find_peer_rows' %}
