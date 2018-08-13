@@ -55,8 +55,7 @@ ORDER BY sim DESC
 
 {% sql 'pairwise_similarity' %}
 ESTIMATE SIMILARITY
-IN THE CONTEXT OF {{ context_column }} as sim
+IN THE CONTEXT OF {{ context_column }}
 FROM PAIRWISE {{ population|default('bayesrest_population') }}
 WHERE rowid0 in ({{ row_set }}) and rowid1 in ({{ row_set }})
-ORDER BY sim DESC
 {% endsql %}
