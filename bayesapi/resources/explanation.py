@@ -40,7 +40,7 @@ class PeerHeatmapDataResource(BaseResource):
             )
 
             cursor = self.execute(query)
-            result = [[row[0], row[1], row[2]] for row in cursor]
+            result = [{'rowid-1': row[0], 'rowid-2': row[1], 'similarity': row[2]} for row in cursor]
 
         return result
 
