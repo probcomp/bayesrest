@@ -39,5 +39,10 @@ class AssociatedColumnsResource(BaseResource):
 
         maps.insert(0, {'column': target_column, 'score': 1.0})
 
+        history.save(self.cfg.history,
+                     {'type': 'associated_columns',
+                      'target_column': normalize(target_column),
+                      'result': maps})
+
         resp.media = maps
         resp.status = 200
