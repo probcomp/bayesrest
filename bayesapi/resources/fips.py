@@ -8,7 +8,7 @@ class FIPSDataResource(BaseResource):
     def on_post(self, req, resp):
 
         table_name = self.cfg.table_name
-        fips_col_name = 'state_county_fipz'
+        fips_col_name = 'state_county_fips'
 
         with self.bdb.savepoint():
 
