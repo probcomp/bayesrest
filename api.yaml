@@ -54,6 +54,29 @@ servers:
   - url: http://bayesapi.probcomp.dev
     description: Local development server
 paths:
+  /fips-data:
+    post:
+      summary: Return FIPS data from a specially-named column (currently hardcoded to `state_county_fips`, if that column exists. If the column does not exist, returns a 400.
+      operationId: fipsData
+      parameters:
+      responses:
+        '200':
+          description: The FIPS data found in the table, in arbitrary order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FIPSData"
+        '400':
+          description: The FIPS column was not found in the table.
+          content:
+            application/json:
+              schema: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /find-associated-columns:
     post:
       summary: Find columns that have predictive relevance to a column.
@@ -256,6 +279,23 @@ components:
         similarity:
           type: number
           format: float
+
+    FIPSData:
+      description: An array of dictionaries which include the row ID and the row's FIPS value, in arbitrary order.
+      type: array
+      items:
+        $ref: "#/components/schemas/FIPSRecord"
+
+    FIPSRecord:
+      description: An element in the list of FIPS records.
+      type: object
+      properties:
+        row-id:
+          type: integer
+          description: The ID of the row.
+        fips-id:
+          type: string
+          description: The FIPS ID of the row.
 
     LastQuery:
       description: Information about the last query run by the system

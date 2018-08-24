@@ -6,6 +6,10 @@ CREATE TABLE IF NOT EXISTS bayesrest_last_query (id INTEGER PRIMARY KEY, query T
 SELECT *, _rowid_ FROM {{ table_name }}
 {% endsql %}
 
+{% sql 'get_fips_data' %}
+SELECT _rowid_, {{ fips_col_name }} FROM {{ table_name }}
+{% endsql %}
+
 {% sql 'get_last_query' %}
 SELECT query
 FROM bayesrest_last_query
