@@ -193,6 +193,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/AnomalyScatterplot"
 
+  /fips-column-name:
+    get:
+      summary: FIPS column name
+      description: The name of the database's FIPS column, if present.
+      tags:
+        - fips
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FIPSName"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /column-data:
     post:
       summary: Per-column data
@@ -352,6 +371,11 @@ components:
           - type: integer
           - type: number
           - type: string
+
+    FIPSName:
+      type: object
+      properties:
+        fips-column-name: string
 
     Error:
       required:

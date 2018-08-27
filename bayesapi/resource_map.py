@@ -3,6 +3,7 @@ from bayesapi.resources import anomalies
 from bayesapi.resources import explanation
 from bayesapi.resources import tabledata
 from bayesapi.resources import associated_columns
+from bayesapi.resources import fips
 from bayesapi.resources import column_data
 
 resources = [
@@ -20,6 +21,8 @@ resources = [
       'resource_class': explanation.AnomalyScatterplotDataResource },
     { 'path': '/find-associated-columns',
       'resource_class': associated_columns.AssociatedColumnsResource },
+    { 'path': '/fips-column-name',
+      'resource_class': fips.FIPSColumnResource },
     { 'path': '/column-data',
       'resource_class': column_data.ColumnDataResource }
 ]
