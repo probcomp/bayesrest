@@ -59,3 +59,8 @@ IN THE CONTEXT OF {{ context_column }}
 FROM PAIRWISE {{ population|default('bayesrest_population') }}
 WHERE rowid0 in ({{ row_set }}) and rowid1 in ({{ row_set }})
 {% endsql %}
+
+{% sql 'column_data' %}
+SELECT {{ column_names|join(',') }}
+FROM {{ table_name }}
+{% endsql %}

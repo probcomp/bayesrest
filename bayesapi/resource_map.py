@@ -3,6 +3,7 @@ from bayesapi.resources import anomalies
 from bayesapi.resources import explanation
 from bayesapi.resources import tabledata
 from bayesapi.resources import associated_columns
+from bayesapi.resources import column_data
 
 resources = [
     { 'path': '/find-peers',
@@ -18,5 +19,7 @@ resources = [
     { 'path': '/anomaly-scatterplot-data',
       'resource_class': explanation.AnomalyScatterplotDataResource },
     { 'path': '/find-associated-columns',
-      'resource_class': associated_columns.AssociatedColumnsResource }
+      'resource_class': associated_columns.AssociatedColumnsResource },
+    { 'path': '/column-data',
+      'resource_class': column_data.ColumnDataResource }
 ]

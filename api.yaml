@@ -193,6 +193,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/AnomalyScatterplot"
 
+  /column-data:
+    post:
+      summary: Per-column data
+      operationId: columnData
+      parameters:
+        - name: columns
+          in: query
+          description: The names of the columns whose data should be returned.
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      tags:
+        - column-data
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ColumnData"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /table-data:
     get:
       summary: Table data
@@ -308,6 +336,7 @@ components:
       type: object
       properties:
         columns:
+          description: An array representing each column name in the table.
           type: array
           items:
             type: string
