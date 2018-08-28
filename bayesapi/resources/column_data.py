@@ -11,7 +11,21 @@ class ColumnDataResource(BaseResource):
 
         table_name = self.cfg.table_name
 
-        columns = req_vars['columns']
+        def normalize(column):
+            return column.lower()
+
+        columns = [c for c in req_vars['columns']]
+
+        with self.bdb.savepoint():
+            def column_name_set():
+                query = self.queries.get_full_table(table_name=table_name)
+                cursor = self.execute(query)
+                return {normalize(tuple[0]) for tuple in cursor.description}
+
+            for c in columns:
+                if normalize(c) not in column_name_set():
+                    resp.status = 400
+                    return
 
         with self.bdb.savepoint():
             query = self.queries.column_data(
@@ -21,7 +35,10 @@ class ColumnDataResource(BaseResource):
 
             cursor = self.execute(query)
 
-            result = [ dict(zip(columns, row)) for row in cursor ]
+            db_col_names = [k for k in columns]
+            db_col_names.insert(0, 'row-id')
+
+            result = [ dict(zip(db_col_names, row)) for row in cursor ]
 
             resp.media = result
             resp.status = falcon.HTTP_200

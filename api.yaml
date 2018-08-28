@@ -216,6 +216,7 @@ paths:
     post:
       summary: Per-column data
       operationId: columnData
+      description: Given a list of column names, return for each of those columns return the data in each row of the table (and the row ID). If *any* of the provided columns are not present in the table, return a 400 error.
       parameters:
         - name: columns
           in: query
