@@ -19,6 +19,8 @@ resources = [
       'resource_class': explanation.PeerHeatmapDataResource },
     { 'path': '/anomaly-scatterplot-data',
       'resource_class': explanation.AnomalyScatterplotDataResource },
+    { 'path': '/associated-columns-chart-data',
+      'resource_class': explanation.AssociatedColumnsChartDataResource },
     { 'path': '/find-associated-columns',
       'resource_class': associated_columns.AssociatedColumnsResource },
     { 'path': '/fips-column-name',
