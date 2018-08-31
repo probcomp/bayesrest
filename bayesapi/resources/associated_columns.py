@@ -41,6 +41,7 @@ class AssociatedColumnsResource(BaseResource):
 
         history.save(self.cfg.history,
                      {'type': 'associated_columns',
+                      'query': query,
                       'target_column': normalize(target_column),
                       'result': maps})
 

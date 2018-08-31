@@ -26,6 +26,16 @@ class AnomalyScatterplotDataResource(BaseResource):
         resp.media = res
         resp.status = 200
 
+class AssociatedColumnsChartDataResource(BaseResource):
+
+    def on_get(self, req, resp):
+
+        last_data = history.read(self.cfg.history)
+        res = last_data['result']
+
+        resp.media = res
+        resp.status = 200
+
 class PeerHeatmapDataResource(BaseResource):
 
     def pairwise_similarity_of_rows(self, table_name, context_column, row_ids):

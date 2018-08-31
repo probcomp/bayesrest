@@ -161,6 +161,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /associated-columns-chart-data:
+    get:
+      summary: Barchart data
+      description: Data required to build a barchart for the query explanation page.
+      tags:
+        - explanation
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BarChart"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /peer-heatmap-data:
     get:
       summary: Heatmap data
