@@ -24,4 +24,5 @@ ENV PYTHONPATH /app
 
 USER $NB_UID
 
-ENTRYPOINT ["docker-entrypoint.sh", "start.sh", "python", "bayesapi"]
+ENTRYPOINT ["docker-entrypoint.sh", "start.sh"]
+CMD ["python", "bayesapi"]
