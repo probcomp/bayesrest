@@ -2,11 +2,12 @@ import os
 from snaql.factory import Snaql
 
 class BaseResource(object):
-    def __init__(self, cfg, bdb, api_def, logger):
+    def __init__(self, cfg, bdb, api_def, fips, logger):
         self.bdb = bdb
         self.cfg = cfg
         self.api_def = api_def
         self.logger = logger
+        self.fips = fips
 
         root_location = os.path.abspath(os.path.dirname(__file__))
         snaql_factory = Snaql(root_location, 'queries')

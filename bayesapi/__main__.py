@@ -9,10 +9,11 @@ from bayesapi.config import AppConfig
 import bayeslite
 from bayeslite.backends.cgpm_backend import CGPM_Backend
 from bayeslite.backends.loom_backend import LoomBackend
+from fips import find_fips_cols
 
 class GunicornApp(BaseApplication):
 
-    def __init__(self, cfg, bdb, api_def, logger):
+    def __init__(self, cfg, bdb, api_def, fips, logger):
         self.options = cfg.gunicorn or {}
         super(GunicornApp, self).__init__()
 
@@ -20,6 +21,7 @@ class GunicornApp(BaseApplication):
         self.bdb = bdb
         self.api_def = api_def
         self.logger = logger
+        self.fips = fips
 
     def load_config(self):
         for key, value in self.options.items():
@@ -37,7 +39,7 @@ class GunicornApp(BaseApplication):
                     allow_headers_list=["Content-Type"], allow_all_methods=True)
 
         self.application = APIService(self.app_cfg, self.bdb,
-                                      self.api_def, self.logger,
+                                      self.api_def, self.fips, self.logger,
                                       middleware=[cors.middleware])
         return self.application
 
@@ -55,9 +57,9 @@ def get_bdb(cfg, logger):
     logger.info("Using bdb file: {}".format(cfg.bdb_file))
 
     bdb = bayeslite.bayesdb_open(pathname=cfg.bdb_file)
-    bayeslite.bayesdb_register_backend(bdb, get_backend_object(cfg))
 
     if cfg.backend == 'loom':
+        bayeslite.bayesdb_register_backend(bdb, get_backend_object(cfg))
         # These are hacks that are necessary because bayeslite currently
         # assumes that `.bdb` file creation and querying will happen in the
         # same Python process.
@@ -94,9 +96,12 @@ def main():
 
     bdb = get_bdb(cfg, logger)
 
+    fips_cols = find_fips_cols(cfg, bdb, 'resources/national_county.txt')
+    logger.info("Found fips columns: {}".format(fips_cols))
+
     api_def = read_api('api.yaml')
 
-    gunicorn_app = GunicornApp(cfg, bdb, api_def, logger)
+    gunicorn_app = GunicornApp(cfg, bdb, api_def, fips_cols, logger)
 
     gunicorn_app.run()
 

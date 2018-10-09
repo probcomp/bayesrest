@@ -11,6 +11,18 @@ class ColumnDataResource(BaseResource):
 
         table_name = self.cfg.table_name
 
+        def fix_fips(k, v):
+            if k == self.fips['state']:
+                sv = str(v)
+                return sv.zfill(2)
+            elif k == self.fips['county']:
+                sv = str(v)
+                return sv.zfill(5)
+            return v
+
+        def fix_fips_if_present(result):
+            return { k : fix_fips(k, v) for k, v in result.iteritems() }
+
         def normalize(column):
             return column.lower()
 
@@ -38,7 +50,7 @@ class ColumnDataResource(BaseResource):
             db_col_names = [k for k in columns]
             db_col_names.insert(0, 'row-id')
 
-            result = [ dict(zip(db_col_names, row)) for row in cursor ]
+            results = [ dict(zip(db_col_names, row)) for row in cursor ]
 
-            resp.media = result
+            resp.media = [fix_fips_if_present(r) for r in results]
             resp.status = falcon.HTTP_200
