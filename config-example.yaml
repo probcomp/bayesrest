@@ -7,6 +7,8 @@ backend: cgpm
 
 history:
     file: history.pickle
+    similarity_file: similarity-history.pickle
+    anomaly_file: anomaly-file.pickle
 
 gunicorn:
     bind: 0.0.0.0:5000

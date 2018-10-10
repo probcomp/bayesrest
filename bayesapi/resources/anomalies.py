@@ -35,5 +35,9 @@ class AnomaliesResource(BaseResource):
                           'target_column': target_column,
                           'context_columns': context_columns})
 
+            history.save(self.cfg.history,
+                         { 'result': result },
+                         "anomaly" )
+
         resp.media = result
         resp.status = falcon.HTTP_200

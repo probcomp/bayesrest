@@ -33,5 +33,10 @@ class PeersResource(BaseResource):
                           'target_row': target_row,
                           'context_columns': [context_column]})
 
+            history.save(self.cfg.history,
+                         { 'result': result },
+                         "similarity")
+
+
         resp.media = result
         resp.status = falcon.HTTP_200

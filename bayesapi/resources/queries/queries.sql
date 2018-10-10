@@ -64,3 +64,8 @@ WHERE rowid0 in ({{ row_set }}) and rowid1 in ({{ row_set }})
 SELECT _rowid_, {{ column_names|join(',') }}
 FROM {{ table_name }}
 {% endsql %}
+
+{% sql 'row_id_data' %}
+SELECT _rowid_
+FROM {{ table_name }}
+{% endsql %}

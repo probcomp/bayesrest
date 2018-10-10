@@ -66,7 +66,7 @@ def get_bdb(cfg, logger):
         logger.info('Backend is set to {}. Manually setting loom_store_path to {}'.format(cfg.backend, cfg.loom_path))
         bdb.sql_execute('UPDATE bayesdb_loom_generator SET loom_store_path = ?', (cfg.loom_path,))
         logger.info('Backend is set to {}. Analyzing for 1 iterations.'.format(cfg.backend))
-        bdb.execute('ANALYZE data FOR 1 ITERATIONS;')
+        bdb.execute('ANALYZE {} FOR 1 ITERATIONS;'.format(cfg.population_name))
 
     logger.info("Backend registered")
 
