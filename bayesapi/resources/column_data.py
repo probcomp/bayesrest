@@ -53,7 +53,7 @@ class ColumnDataResource(BaseResource):
         def normalize(column):
             return column.lower()
 
-        columns = [normalize(c) for c in req_vars['columns']]
+        columns = req_vars['columns']
 
         include_anomaly_value = False
         include_similarity_value = False

@@ -49,18 +49,18 @@ def fips_cols(sets, col_names, cursor):
     scoreboard = reduce(keep_score, cursor, scoreboard_init)
 
     def resolve(acc, t):
-        state_val = float(t['state']) / (t['state'] + t['miss'])
-        county_val = float(t['county']) / (t['county'] + t['miss'])
+        state_val = float(t['state']) / max(1, (t['state'] + t['miss']))
+        county_val = float(t['county']) / max(1, (t['county'] + t['miss']))
 
         if state_val > miss_threshold \
            and state_val > acc['state']['val'] \
-           and t['state'] / float(state_count) > col_threshold:
+           and t['state'] / max(1, float(state_count)) > col_threshold:
             acc['state']['name'] = t['name']
             acc['state']['val'] = state_val
 
         if county_val > miss_threshold \
            and county_val > acc['county']['val'] \
-           and t['county'] / float(county_count) > col_threshold:
+           and t['county'] / max(1, float(county_count)) > col_threshold:
             acc['county']['name'] = t['name']
             acc['county']['val'] = state_val
 
