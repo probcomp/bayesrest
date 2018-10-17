@@ -1,28 +1,18 @@
 # parent image
 FROM probcomp/notebook
 
-USER root
-
 # Set the working directory to /app
 WORKDIR /app
-ADD requirements.txt /app/
-
-RUN conda install -n python2 --quiet --yes --file requirements.txt
-RUN $CONDA_DIR/envs/python2/bin/pip install aumbry falcon-cors snaql alchemize
-
-RUN npm install -g redoc-cli
-
-ADD . /app
-RUN fix-permissions /app
-
-ADD docker-entrypoint.sh /usr/local/bin/
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
+RUN npm install -g redoc-cli
+
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt
+COPY . /app
+
 ENV PYTHONPATH /app
 
-USER $NB_UID
-
-ENTRYPOINT ["docker-entrypoint.sh", "start.sh"]
 CMD ["python", "bayesapi"]

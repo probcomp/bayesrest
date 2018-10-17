@@ -12,6 +12,7 @@ services:
       nginx_probcomp:
         aliases:
           - bayesrest
+    user: root
     environment:
       HTTPS_METHOD: 'noredirect'
       VIRTUAL_HOST: 'bayesrest.probcomp.dev'

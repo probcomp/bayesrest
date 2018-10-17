@@ -1,4 +1,8 @@
+alchemize
+aumbry
 falcon
+falcon-cors
 gunicorn
-PyYAML
 jsonschema
+PyYAML
+snaql
