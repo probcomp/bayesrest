@@ -10,9 +10,9 @@ EXPOSE 5000
 RUN npm install -g redoc-cli
 
 COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+RUN pip2 install -r requirements.txt
 COPY . /app
 
 ENV PYTHONPATH /app
 
-CMD ["python", "bayesapi"]
+CMD ["python2", "bayesapi"]
